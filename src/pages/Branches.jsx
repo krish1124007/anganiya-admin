@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
-import { Plus, Edit2, Trash2, Power, PowerOff, Save, X } from 'lucide-react';
+import { decrypt_number, decrypt_text } from '../utils/decrypt';
+import { Plus, Edit2, Trash2, Power, PowerOff, Save, X, Search } from 'lucide-react';
 
 export default function Branches() {
   const [branches, setBranches] = useState([]);
@@ -11,7 +12,13 @@ export default function Branches() {
     branch_name: '',
     location: '',
     commision: ''
-  });
+  })
+
+  const [showTransactionsModal, setShowTransactionsModal] = useState(false);
+  const [selectedBranchTransactions, setSelectedBranchTransactions] = useState([]);
+  const [transactionSearchQuery, setTransactionSearchQuery] = useState('');
+  const [loadingTransactions, setLoadingTransactions] = useState(false);
+  const [selectedBranchName, setSelectedBranchName] = useState('');
 
   useEffect(() => {
     fetchBranches();
@@ -115,6 +122,33 @@ export default function Branches() {
     }
   };
 
+  const handleBranchClick = async (branch) => {
+    setSelectedBranchName(branch.branch_name);
+    setLoadingTransactions(true);
+    setShowTransactionsModal(true);
+    try {
+      const response = await api.getTransactionBranchWise(branch._id);
+      if (response.success) {
+        setSelectedBranchTransactions(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching branch transactions:', error);
+    } finally {
+      setLoadingTransactions(false);
+    }
+  };
+
+  const filteredTransactions = selectedBranchTransactions.filter(transaction => {
+    const senderName = transaction.sender_name?.toLowerCase() || '';
+    const receiverName = transaction.receiver_name?.toLowerCase() || '';
+    const points = decrypt_number(transaction.points)?.toString() || '';
+    const query = transactionSearchQuery.toLowerCase();
+
+    return senderName.includes(query) ||
+      receiverName.includes(query) ||
+      points.includes(query);
+  });
+
   const startEdit = (branch) => {
     setEditingBranch(branch);
     setFormData({
@@ -165,7 +199,8 @@ export default function Branches() {
           {branches.map((branch) => (
             <div
               key={branch._id}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow"
+              onClick={() => handleBranchClick(branch)}
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow cursor-pointer"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
@@ -175,11 +210,10 @@ export default function Branches() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">{branch.location}</p>
                 </div>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    branch.active
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                      : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                  }`}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold ${branch.active
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                    : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                    }`}
                 >
                   {branch.active ? 'Active' : 'Inactive'}
                 </span>
@@ -192,21 +226,21 @@ export default function Branches() {
 
               <div className="flex space-x-2">
                 <button
-                  onClick={() => startEdit(branch)}
+                  onClick={(e) => { e.stopPropagation(); startEdit(branch); }}
                   className="flex-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center justify-center space-x-1 transition-colors"
                 >
                   <Edit2 className="w-4 h-4" />
                   <span>Edit</span>
                 </button>
                 <button
-                  onClick={() => handleDisableBranch(branch._id)}
+                  onClick={(e) => { e.stopPropagation(); handleDisableBranch(branch._id); }}
                   className="flex-1 px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg flex items-center justify-center space-x-1 transition-colors"
                 >
                   <PowerOff className="w-4 h-4" />
                   <span>Disable</span>
                 </button>
                 <button
-                  onClick={() => handleDelete(branch._id)}
+                  onClick={(e) => { e.stopPropagation(); handleDelete(branch._id); }}
                   className="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -285,6 +319,95 @@ export default function Branches() {
                 <span>{editingBranch ? 'Update Branch' : 'Create Branch'}</span>
               </button>
             </form>
+          </div>
+        </div>
+      )}
+      {showTransactionsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl w-full p-6 max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Transactions - {selectedBranchName}
+              </h2>
+              <button
+                onClick={() => {
+                  setShowTransactionsModal(false);
+                  setTransactionSearchQuery('');
+                  setSelectedBranchTransactions([]);
+                }}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="mb-6 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search transactions..."
+                value={transactionSearchQuery}
+                onChange={(e) => setTransactionSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+
+            <div className="flex-1 overflow-y-auto">
+              {loadingTransactions ? (
+                <div className="flex items-center justify-center h-64">
+                  <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-gray-200 dark:border-gray-700">
+                        <th className="p-4 text-sm font-semibold text-gray-600 dark:text-gray-400">Date</th>
+                        <th className="p-4 text-sm font-semibold text-gray-600 dark:text-gray-400">Sender</th>
+                        <th className="p-4 text-sm font-semibold text-gray-600 dark:text-gray-400">Receiver</th>
+                        <th className="p-4 text-sm font-semibold text-gray-600 dark:text-gray-400">Points</th>
+                        <th className="p-4 text-sm font-semibold text-gray-600 dark:text-gray-400">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredTransactions.map((transaction) => (
+                        <tr key={transaction._id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                          <td className="p-4 text-gray-900 dark:text-white">
+                            {new Date(transaction.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="p-4 text-gray-900 dark:text-white">
+                            <div>{transaction.sender_name}</div>
+                            <div className="text-xs text-gray-500">{decrypt_number(transaction.sender_mobile)}</div>
+                          </td>
+                          <td className="p-4 text-gray-900 dark:text-white">
+                            <div>{transaction.receiver_name}</div>
+                            <div className="text-xs text-gray-500">{decrypt_number(transaction.receiver_mobile)}</div>
+                          </td>
+                          <td className="p-4 font-semibold text-gray-900 dark:text-white">
+                            {decrypt_number(transaction.points)}
+                          </td>
+                          <td className="p-4">
+                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${transaction.status
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+                              }`}>
+                              {transaction.status ? 'Completed' : 'Pending'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                      {filteredTransactions.length === 0 && (
+                        <tr>
+                          <td colspan="5" className="p-8 text-center text-gray-500 dark:text-gray-400">
+                            No transactions found
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

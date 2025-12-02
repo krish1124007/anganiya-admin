@@ -1,4 +1,5 @@
 const API_BASE_URL = 'https://angaditya-backend.onrender.com/api/v1';
+// const API_BASE_URL = 'http://localhost:5000/api/v1';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('accesstoken');
@@ -91,29 +92,45 @@ export const api = {
     return response.json();
   },
   createNewUser: async ({ username, password, branch }) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/user/create-user`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      
-      body: JSON.stringify({ username, password, branch }),
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/user/create-user`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({ message: "Unknown error" }));
-      throw new Error(err.message || "Failed to create user");
+        body: JSON.stringify({ username, password, branch }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ message: "Unknown error" }));
+        throw new Error(err.message || "Failed to create user");
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error("Create user failed:", error.message);
+      return {
+        success: false,
+        message: error.message,
+      };
     }
+  },
 
+  getTransactionBranchWise: async (branch_id) => {
+    const response = await fetch(`${API_BASE_URL}/admin/get-transaction-branch-wise`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ branch_id })
+    });
     return response.json();
-  } catch (error) {
-    console.error("Create user failed:", error.message);
-    return {
-      success: false,
-      message: error.message,
-    };
-  }
-}
-
+  },
+  updateAdmin: async (_id, update_body) => {
+    const response = await fetch(`${API_BASE_URL}/admin/update-admin`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ _id, update_body })
+    });
+    return response.json();
+  },
 };
