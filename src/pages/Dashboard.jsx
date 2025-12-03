@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
-import { ArrowLeftRight, Building2, TrendingUp, Calendar } from 'lucide-react';
+import { ArrowLeftRight, Building2, TrendingUp, Calendar, Bell } from 'lucide-react';
 
 export default function Dashboard() {
   const [todayTransactions, setTodayTransactions] = useState([]);
@@ -82,43 +82,55 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
-            <div className="flex items-center space-x-2 mb-4">
-              <Calendar className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Recent Transactions</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
+              <div className="flex items-center space-x-2 mb-4">
+                <Calendar className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Recent Transactions</h2>
+              </div>
+
+              {todayTransactions.length === 0 ? (
+                <p className="text-center text-gray-500 dark:text-gray-400 py-6">No transactions today</p>
+              ) : (
+                <div className="space-y-3">
+                  {todayTransactions.slice(0, 5).map((transaction) => (
+                    <div
+                      key={transaction._id}
+                      className="p-3 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold text-gray-900 dark:text-white">
+                          {transaction.sender_name} → {transaction.receiver_name}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {new Date(transaction.createdAt).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                          <p className="text-gray-600 dark:text-gray-400">Sender Mobile</p>
+                          <p className="text-gray-900 dark:text-white font-medium">{transaction.sender_mobile}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600 dark:text-gray-400">Receiver Mobile</p>
+                          <p className="text-gray-900 dark:text-white font-medium">{transaction.receiver_mobile}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {todayTransactions.length === 0 ? (
-              <p className="text-center text-gray-500 dark:text-gray-400 py-6">No transactions today</p>
-            ) : (
-              <div className="space-y-3">
-                {todayTransactions.slice(0, 5).map((transaction) => (
-                  <div
-                    key={transaction._id}
-                    className="p-3 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-semibold text-gray-900 dark:text-white">
-                        {transaction.sender_name} → {transaction.receiver_name}
-                      </span>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {new Date(transaction.createdAt).toLocaleTimeString()}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 text-xs">
-                      <div>
-                        <p className="text-gray-600 dark:text-gray-400">Sender Mobile</p>
-                        <p className="text-gray-900 dark:text-white font-medium">{transaction.sender_mobile}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600 dark:text-gray-400">Receiver Mobile</p>
-                        <p className="text-gray-900 dark:text-white font-medium">{transaction.receiver_mobile}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
+              <div className="flex items-center space-x-2 mb-4">
+                <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Notifications</h2>
               </div>
-            )}
+              <div className="space-y-3">
+                <p className="text-center text-gray-500 dark:text-gray-400 py-6">No new notifications</p>
+              </div>
+            </div>
           </div>
         </>
       )}

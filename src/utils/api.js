@@ -133,4 +133,21 @@ export const api = {
     });
     return response.json();
   },
+  enableBranch: async (_id) => {
+    const response = await fetch(`${API_BASE_URL}/admin/update-branch`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ _id, new_data: { active: true } })
+    });
+    return response.json();
+  },
+
+  giveTransactionPermission: async (transactions_id) => {
+    const response = await fetch(`${API_BASE_URL}/admin/give-transaction-permission`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ transactions_id })
+    });
+    return response.json();
+  },
 };

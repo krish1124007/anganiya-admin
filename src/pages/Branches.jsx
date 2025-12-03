@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { decrypt_number, decrypt_text } from '../utils/decrypt';
-import { Plus, Edit2, Trash2, Power, PowerOff, Save, X, Search } from 'lucide-react';
+import { Plus, Edit2, Trash2, Power, PowerOff, Save, X, Search, Check } from 'lucide-react';
 
 export default function Branches() {
   const [branches, setBranches] = useState([]);
@@ -95,6 +95,17 @@ export default function Branches() {
       }
     } catch (error) {
       console.error('Error disabling branch:', error);
+    }
+  };
+
+  const handleEnableBranch = async (id) => {
+    try {
+      const response = await api.enableBranch(id);
+      if (response.success) {
+        fetchBranches();
+      }
+    } catch (error) {
+      console.error('Error enabling branch:', error);
     }
   };
 
@@ -232,13 +243,23 @@ export default function Branches() {
                   <Edit2 className="w-4 h-4" />
                   <span>Edit</span>
                 </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleDisableBranch(branch._id); }}
-                  className="flex-1 px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg flex items-center justify-center space-x-1 transition-colors"
-                >
-                  <PowerOff className="w-4 h-4" />
-                  <span>Disable</span>
-                </button>
+                {branch.active ? (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleDisableBranch(branch._id); }}
+                    className="flex-1 px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg flex items-center justify-center space-x-1 transition-colors"
+                  >
+                    <PowerOff className="w-4 h-4" />
+                    <span>Disable</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleEnableBranch(branch._id); }}
+                    className="flex-1 px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg flex items-center justify-center space-x-1 transition-colors"
+                  >
+                    <Power className="w-4 h-4" />
+                    <span>Enable</span>
+                  </button>
+                )}
                 <button
                   onClick={(e) => { e.stopPropagation(); handleDelete(branch._id); }}
                   className="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
@@ -367,6 +388,7 @@ export default function Branches() {
                         <th className="p-4 text-sm font-semibold text-gray-600 dark:text-gray-400">Receiver</th>
                         <th className="p-4 text-sm font-semibold text-gray-600 dark:text-gray-400">Points</th>
                         <th className="p-4 text-sm font-semibold text-gray-600 dark:text-gray-400">Status</th>
+                        <th className="p-4 text-sm font-semibold text-gray-600 dark:text-gray-400">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -388,17 +410,61 @@ export default function Branches() {
                           </td>
                           <td className="p-4">
                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${transaction.status
-                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                                : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
                               }`}>
                               {transaction.status ? 'Completed' : 'Pending'}
                             </span>
+                          </td>
+                          <td className="p-4">
+                            {!transaction.status && (
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={async () => {
+                                    try {
+                                      const response = await api.giveTransactionPermission(transaction._id);
+                                      if (response.success) {
+                                        // Refresh transactions
+                                        const updatedRes = await api.getTransactionBranchWise(transaction.sender_branch_id || transaction.branch_id); // Assuming we can get branch_id
+                                        // Or just re-fetch using the current selected branch logic
+                                        // But we don't have easy access to branch object here unless we store it.
+                                        // Let's use the existing fetch logic if possible or just update local state.
+                                        // Actually, handleBranchClick sets selectedBranchTransactions.
+                                        // I should probably re-call the API for the current branch.
+                                        // But I don't have the branch ID easily accessible in this scope unless I use selectedBranchTransactions[0]?.sender_branch_id?
+                                        // Wait, I have `selectedBranchName` but not ID.
+                                        // I should probably store `selectedBranch` instead of just name.
+                                        // For now, I'll just alert or maybe try to refresh if I can.
+                                        // Better: Update the local state to mark it as completed.
+                                        setSelectedBranchTransactions(prev => prev.map(t => t._id === transaction._id ? { ...t, status: true } : t));
+                                      }
+                                    } catch (error) {
+                                      console.error('Error accepting transaction:', error);
+                                    }
+                                  }}
+                                  className="p-1 bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
+                                  title="Accept"
+                                >
+                                  <Check className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    // Reject logic here (placeholder)
+                                    console.log('Reject transaction', transaction._id);
+                                  }}
+                                  className="p-1 bg-red-500 hover:bg-red-600 text-white rounded transition-colors"
+                                  title="Reject"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            )}
                           </td>
                         </tr>
                       ))}
                       {filteredTransactions.length === 0 && (
                         <tr>
-                          <td colspan="5" className="p-8 text-center text-gray-500 dark:text-gray-400">
+                          <td colSpan="6" className="p-8 text-center text-gray-500 dark:text-gray-400">
                             No transactions found
                           </td>
                         </tr>

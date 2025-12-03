@@ -17,3 +17,5 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const messaging = getMessaging(app);
+
+// here make the one more section in the dashboard notification setcion when the new notification is creaete that show thire and also thire has the button of the accpet if the notification is accept thant use the update notification backend url and give the admin_permission:true 
