@@ -386,6 +386,8 @@ export default function Branches() {
                         <th className="p-4 text-sm font-semibold text-gray-600 dark:text-gray-400">Date</th>
                         <th className="p-4 text-sm font-semibold text-gray-600 dark:text-gray-400">Sender</th>
                         <th className="p-4 text-sm font-semibold text-gray-600 dark:text-gray-400">Receiver</th>
+                        <th className="p-4 text-sm font-semibold text-gray-600 dark:text-gray-400">Sender Branch</th>
+                        <th className="p-4 text-sm font-semibold text-gray-600 dark:text-gray-400">Receiver Branch</th>
                         <th className="p-4 text-sm font-semibold text-gray-600 dark:text-gray-400">Points</th>
                         <th className="p-4 text-sm font-semibold text-gray-600 dark:text-gray-400">Status</th>
                         <th className="p-4 text-sm font-semibold text-gray-600 dark:text-gray-400">Actions</th>
@@ -398,12 +400,18 @@ export default function Branches() {
                             {new Date(transaction.createdAt).toLocaleDateString()}
                           </td>
                           <td className="p-4 text-gray-900 dark:text-white">
-                            <div>{transaction.sender_name}</div>
+                            <div>{decrypt_text(transaction.sender_name)}</div>
                             <div className="text-xs text-gray-500">{decrypt_number(transaction.sender_mobile)}</div>
                           </td>
                           <td className="p-4 text-gray-900 dark:text-white">
-                            <div>{transaction.receiver_name}</div>
+                            <div>{decrypt_text(transaction.receiver_name)}</div>
                             <div className="text-xs text-gray-500">{decrypt_number(transaction.receiver_mobile)}</div>
+                          </td>
+                          <td className="p-4 text-gray-900 dark:text-white">
+                            {transaction.sender_branch_name}
+                          </td>
+                          <td className="p-4 text-gray-900 dark:text-white">
+                            {transaction.receiver_branch_name}
                           </td>
                           <td className="p-4 font-semibold text-gray-900 dark:text-white">
                             {decrypt_number(transaction.points)}

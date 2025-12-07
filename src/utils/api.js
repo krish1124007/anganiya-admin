@@ -158,4 +158,53 @@ export const api = {
     });
     return response.json();
   },
+
+  getUsers: async () => {
+    const response = await fetch(`${API_BASE_URL}/admin/get-user`, {
+      method: 'POST',
+      headers: getAuthHeaders()
+    });
+    return response.json();
+  },
+
+  deleteAllUsers: async () => {
+    const response = await fetch(`${API_BASE_URL}/admin/delete-all-user`, {
+      method: 'POST',
+      headers: getAuthHeaders()
+    });
+    return response.json();
+  },
+
+  deleteUser: async (user_id) => {
+    const response = await fetch(`${API_BASE_URL}/admin/delete-user`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ user_id }),
+    });
+    return response.json();
+  },
+
+  updateUser: async (user_id, update_body) => {
+    const response = await fetch(`${API_BASE_URL}/admin/update-user`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ user_id, update_body }),
+    });
+    return response.json();
+  },
+
+  deleteAllTransactions: async () => {
+    const response = await fetch(`${API_BASE_URL}/admin/delete-all-transaction`, {
+      method: 'POST',
+      headers: getAuthHeaders()
+    });
+    return response.json();
+  },
+
+  getDailyStats: async () => {
+    const response = await fetch(`${API_BASE_URL}/admin/daily-stats`, {
+      headers: getAuthHeaders()
+    });
+    return response.json();
+  },
 };

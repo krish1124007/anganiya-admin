@@ -28,40 +28,64 @@ export default function Transactions() {
     }
   }, [searchTerm, transactions]);
 
- const fetchTransactions = async () => {
-  setLoading(true);
-  try {
-    const response =
-      filter === "today"
-        ? await api.getTodayTransactions()
-        : await api.getAllTransactions();
+  const fetchTransactions = async () => {
+    setLoading(true);
+    try {
+      const response =
+        filter === "today"
+          ? await api.getTodayTransactions()
+          : await api.getAllTransactions();
 
-    if (response.success) {
-      // decrypt all data before setting state
-      const decrypted = response.data.map((t) => ({
-        ...t,
-        sender_name: decrypt_text(t.sender_name),
-        receiver_name: decrypt_text(t.receiver_name),
-        sender_mobile: decrypt_number(t.sender_mobile),
-        receiver_mobile: decrypt_number(t.receiver_mobile),
-        points: decrypt_number(t.points),
-      }));
+      if (response.success) {
+        // decrypt all data before setting state
+        const decrypted = response.data.map((t) => ({
+          ...t,
+          sender_name: decrypt_text(t.sender_name),
+          receiver_name: decrypt_text(t.receiver_name),
+          sender_mobile: decrypt_number(t.sender_mobile),
+          receiver_mobile: decrypt_number(t.receiver_mobile),
+          points: decrypt_number(t.points),
+        }));
 
-      setTransactions(decrypted);
-      setFilteredTransactions(decrypted);
+        setTransactions(decrypted);
+        setFilteredTransactions(decrypted);
+      }
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Error fetching transactions:", error);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+
+  const handleDeleteAll = async () => {
+    if (!window.confirm("WARNING: Are you sure you want to delete ALL transactions? This action cannot be undone.")) return;
+    try {
+      const response = await api.deleteAllTransactions();
+      if (response.success) {
+        setFilter('all'); // Reset filter
+        fetchTransactions(); // Refresh list
+        alert("All transactions deleted successfully");
+      } else {
+        alert(response.message || "Failed to delete transactions");
+      }
+    } catch (error) {
+      console.error("Error deleting transactions:", error);
+    }
+  };
 
   return (
     <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Transactions</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">View and manage all transactions</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Transactions</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">View and manage all transactions</p>
+        </div>
+        <button
+          onClick={handleDeleteAll}
+          className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center space-x-2"
+        >
+          <span>Delete All Transactions</span>
+        </button>
       </div>
 
       <div className="mb-6 flex flex-col md:flex-row gap-4">
@@ -79,21 +103,19 @@ export default function Transactions() {
         <div className="flex space-x-2">
           <button
             onClick={() => setFilter('all')}
-            className={`px-4 py-3 rounded-lg font-medium transition-colors ${
-              filter === 'all'
-                ? 'bg-blue-500 text-white'
-                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600'
-            }`}
+            className={`px-4 py-3 rounded-lg font-medium transition-colors ${filter === 'all'
+              ? 'bg-blue-500 text-white'
+              : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600'
+              }`}
           >
             All Time
           </button>
           <button
             onClick={() => setFilter('today')}
-            className={`px-4 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2 ${
-              filter === 'today'
-                ? 'bg-blue-500 text-white'
-                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600'
-            }`}
+            className={`px-4 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2 ${filter === 'today'
+              ? 'bg-blue-500 text-white'
+              : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600'
+              }`}
           >
             <Calendar className="w-4 h-4" />
             <span>Today</span>
@@ -122,6 +144,12 @@ export default function Transactions() {
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Receiver
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Sender Branch
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Receiver Branch
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Points
@@ -153,6 +181,16 @@ export default function Transactions() {
                             {transaction.receiver_mobile}
                           </div>
                         </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                          {transaction.sender_branch_name}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                          {transaction.receiver_branch_name}
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
