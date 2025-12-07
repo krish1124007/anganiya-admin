@@ -22,7 +22,7 @@ export default function Login() {
       if (response.success) {
         // Try multiple variations of the token key
         const token = response.data?.accesstoken || response.data?.accessToken || response.data?.token || response.token;
-        console.log("Extracted Token:", token); // Debug log
+       
 
         if (token) {
           login(response.data.admin, token);
