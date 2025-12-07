@@ -17,9 +17,19 @@ export default function Login() {
 
     try {
       const response = await api.loginAdmin(username, password);
+      console.log("Login API Response:", response); // Debug log
 
       if (response.success) {
-        login(response.data.admin, response.data.accesstoken);
+        // Try multiple variations of the token key
+        const token = response.data?.accesstoken || response.data?.accessToken || response.data?.token || response.token;
+        console.log("Extracted Token:", token); // Debug log
+
+        if (token) {
+          login(response.data.admin, token);
+        } else {
+          console.error("Token missing in response:", response);
+          setError("Login succeeded but token was missing.");
+        }
       } else {
         setError(response.message || 'Login failed');
       }
