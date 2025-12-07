@@ -1,13 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Dashboard from '../pages/Dashboard';
 import Branches from '../pages/Branches';
 import Transactions from '../pages/Transactions';
 import CreateUser from '../pages/CreateUser';
 import IpTracing from '../pages/IpTracing';
+import TransactionDetails from '../pages/TransactionDetails';
 
 export default function DashboardLayout() {
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const [selectedTransactionId, setSelectedTransactionId] = useState(null);
+
+  useEffect(() => {
+    // Check for deep linking param (transactionId)
+    const params = new URLSearchParams(window.location.search);
+    const transactionId = params.get('transactionId');
+    if (transactionId) {
+      setSelectedTransactionId(transactionId);
+      setCurrentPage('transaction-details');
+      // Clean up URL
+      window.history.replaceState({}, '', '/');
+    }
+  }, []);
+
+  const handleBackToDashboard = () => {
+    setCurrentPage('dashboard');
+    setSelectedTransactionId(null);
+  };
 
   const renderPage = () => {
     switch (currentPage) {
@@ -21,6 +40,11 @@ export default function DashboardLayout() {
         return <CreateUser />;
       case 'ip-tracing':
         return <IpTracing />;
+      case 'transaction-details':
+        return <TransactionDetails
+          transactionId={selectedTransactionId}
+          onBack={handleBackToDashboard}
+        />;
       default:
         return <Dashboard />;
     }
