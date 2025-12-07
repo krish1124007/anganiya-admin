@@ -150,4 +150,12 @@ export const api = {
     });
     return response.json();
   },
+
+  getAllUserLogs: async () => {
+    const response = await fetch(`${API_BASE_URL}/admin/get-all-user-logs`, {
+      method: 'POST',
+      headers: getAuthHeaders()
+    });
+    return response.json();
+  },
 };

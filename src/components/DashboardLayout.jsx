@@ -4,6 +4,7 @@ import Dashboard from '../pages/Dashboard';
 import Branches from '../pages/Branches';
 import Transactions from '../pages/Transactions';
 import CreateUser from '../pages/CreateUser';
+import IpTracing from '../pages/IpTracing';
 
 export default function DashboardLayout() {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -18,6 +19,8 @@ export default function DashboardLayout() {
         return <Transactions />;
       case 'create-user':
         return <CreateUser />;
+      case 'ip-tracing':
+        return <IpTracing />;
       default:
         return <Dashboard />;
     }
