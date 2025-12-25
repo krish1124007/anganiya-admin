@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
-import { Search, RotateCcw, Download, Check, Calendar, X } from 'lucide-react';
+import { Search, RotateCcw, Download, Check, Calendar, X, Plus } from 'lucide-react';
 import { decrypt_number, decrypt_text } from "../utils/decrypt";
 import { exportTableToPDF, formatNumber, formatDate } from '../utils/pdfExport';
 
@@ -11,6 +11,35 @@ export default function Transactions() {
   const [searchTerm, setSearchTerm] = useState('');
   const [approvingId, setApprovingId] = useState(null);
   const [selectedDate, setSelectedDate] = useState('');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [branches, setBranches] = useState([]);
+  const [createFormData, setCreateFormData] = useState({
+    sender_branch: '',
+    receiver_branch: '',
+    points: '',
+    receiver_name: '',
+    receiver_mobile: '',
+    sender_name: '',
+    sender_mobile: '',
+    commission: '',
+    other_receiver: '',
+    other_sender: ''
+  });
+
+  useEffect(() => {
+    fetchBranches();
+  }, []);
+
+  const fetchBranches = async () => {
+    try {
+      const response = await api.getAllBranches();
+      if (response.success) {
+        setBranches(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching branches:", error);
+    }
+  };
 
   useEffect(() => {
     fetchTransactions();
@@ -59,6 +88,8 @@ export default function Transactions() {
           receiver_mobile: t.receiver_mobile ? decrypt_number(t.receiver_mobile) : '-',
           points: t.points ? Number(decrypt_number(t.points)) : 0,
           commission: t.commission ? Number(t.commission) : 0,
+          other_receiver: t.other_receiver || '-',
+          other_sender: t.other_sender || '-',
         }));
         // Sort by date desc
         decrypted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -113,8 +144,67 @@ export default function Transactions() {
 
   const totals = calculateTotals();
 
+
+
+  const handleCreateTransaction = () => {
+    setShowCreateModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowCreateModal(false);
+    setCreateFormData({
+      sender_branch: '',
+      receiver_branch: '',
+      points: '',
+      receiver_name: '',
+      receiver_mobile: '',
+      sender_name: '',
+      sender_mobile: '',
+      commission: '',
+      other_receiver: '',
+      other_sender: ''
+    });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setCreateFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmitTransaction = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      // Ensure numeric values are numbers
+      const payload = {
+        ...createFormData,
+        points: Number(createFormData.points),
+        commission: Number(createFormData.commission),
+        receiver_mobile: Number(createFormData.receiver_mobile),
+        sender_mobile: Number(createFormData.sender_mobile)
+      };
+
+      const response = await api.createTransaction(payload);
+      if (response.success) {
+        alert("Transaction created successfully!");
+        handleCloseModal();
+        fetchTransactions();
+      } else {
+        alert(response.message || "Failed to create transaction");
+      }
+    } catch (error) {
+      console.error("Error creating transaction:", error);
+      alert("Error creating transaction");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleExportPDF = () => {
-    const headers = ['Sr No', 'Date', 'Points', 'Receiver', 'Sender', 'Sender Branch', 'Receiver Branch', 'Commission', 'Admin Approval', 'Status'];
+    const headers = ['Sr No', 'Date', 'Points', 'Receiver', 'Sender', 'From', 'To', 'Other From', 'Other To', 'Commission', 'Admin Approval', 'Status'];
 
     const data = filteredTransactions.map((t, index) => [
       index + 1,
@@ -124,6 +214,8 @@ export default function Transactions() {
       t.sender_name,
       t.sender_branch_name,
       t.receiver_branch_name,
+      t.other_sender,
+      t.other_receiver,
       formatNumber(t.commission),
       t.admin_permission ? 'Approved' : 'Not Approved',
       t.status ? 'Complete' : 'Pending'
@@ -149,6 +241,13 @@ export default function Transactions() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Transactions</h1>
         <div className="flex items-center gap-3">
+          <button
+            onClick={handleCreateTransaction}
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center space-x-2 transition-colors shadow"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Create Transaction</span>
+          </button>
           <button
             onClick={handleExportPDF}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center space-x-2 transition-colors shadow"
@@ -222,8 +321,10 @@ export default function Transactions() {
                   <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-right">Points</th>
                   <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Receiver</th>
                   <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Sender</th>
-                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Sender Branch</th>
-                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Receiver Branch</th>
+                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">From</th>
+                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">To</th>
+                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Other From</th>
+                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Other To</th>
                   <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-right">Commission</th>
                   <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Admin Approval</th>
                   <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Status</th>
@@ -256,6 +357,12 @@ export default function Transactions() {
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
                           {t.receiver_branch_name}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
+                        <div className="font-medium text-gray-900 dark:text-white">{t.other_sender}</div>
+                      </td>
+                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
+                        <div className="font-medium text-gray-900 dark:text-white">{t.other_receiver}</div>
                       </td>
                       <td className="px-6 py-4 font-medium text-green-600 dark:text-green-400 text-right">
                         {t.commission.toLocaleString()}
@@ -307,7 +414,7 @@ export default function Transactions() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="11" className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                    <td colSpan="13" className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                       No transactions found matching your search.
                     </td>
                   </tr>
@@ -334,6 +441,175 @@ export default function Transactions() {
           </div>
         </div>
       </div>
-    </div>
+
+
+      {/* Create Transaction Modal */}
+      {
+        showCreateModal && (
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-700/50 rounded-t-lg">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Create New Transaction</h2>
+                <button onClick={handleCloseModal} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmitTransaction} className="p-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Branch Selection */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Sender Branch</label>
+                    <select
+                      name="sender_branch"
+                      value={createFormData.sender_branch}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select Sender Branch</option>
+                      {branches.map(b => (
+                        <option key={b._id} value={b._id}>{b.branch_name} ({b.location})</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Receiver Branch</label>
+                    <select
+                      name="receiver_branch"
+                      value={createFormData.receiver_branch}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select Receiver Branch</option>
+                      {branches.map(b => (
+                        <option key={b._id} value={b._id}>{b.branch_name} ({b.location})</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Amount & Commission */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Points (Amount)</label>
+                    <input
+                      type="number"
+                      name="points"
+                      value={createFormData.points}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Commission</label>
+                    <input
+                      type="number"
+                      name="commission"
+                      value={createFormData.commission}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* Sender Details */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Sender Name</label>
+                    <input
+                      type="text"
+                      name="sender_name"
+                      value={createFormData.sender_name}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Sender Mobile</label>
+                    <input
+                      type="number"
+                      name="sender_mobile"
+                      value={createFormData.sender_mobile}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* Receiver Details */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Receiver Name</label>
+                    <input
+                      type="text"
+                      name="receiver_name"
+                      value={createFormData.receiver_name}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Receiver Mobile</label>
+                    <input
+                      type="number"
+                      name="receiver_mobile"
+                      value={createFormData.receiver_mobile}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* Other Fields */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Other Sender (Optional)</label>
+                    <input
+                      type="text"
+                      name="other_sender"
+                      value={createFormData.other_sender}
+                      onChange={handleInputChange}
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Other Receiver (Optional)</label>
+                    <input
+                      type="text"
+                      name="other_receiver"
+                      value={createFormData.other_receiver}
+                      onChange={handleInputChange}
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    type="button"
+                    onClick={handleCloseModal}
+                    className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  >
+                    {loading ? 'Creating...' : 'Create Transaction'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )
+      }
+    </div >
   );
 }

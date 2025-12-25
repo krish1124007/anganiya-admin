@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import Navbar from './Navbar';
-import Dashboard from '../pages/Dashboard';
 import Branches from '../pages/Branches';
 import AllBranches from '../pages/AllBranches';
 import BranchCommissionReport from '../pages/BranchCommissionReport';
@@ -12,7 +11,7 @@ import BranchDetails from '../pages/BranchDetails';
 import { api } from '../utils/api'; // For search if needed, or pass prop
 
 export default function DashboardLayout() {
-  const [currentPage, setCurrentPage] = useState('dashboard'); // Default to dashboard with sidebar
+  const [currentPage, setCurrentPage] = useState('transactions'); // Default to transactions with sidebar
   const [selectedTransactionId, setSelectedTransactionId] = useState(null);
   const [selectedBranchId, setSelectedBranchId] = useState(null); // For branch details
   const [branchSearchQuery, setBranchSearchQuery] = useState('');
@@ -44,8 +43,6 @@ export default function DashboardLayout() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'dashboard':
-        return <Dashboard />;
       case 'all-branches':
         return <AllBranches onBranchClick={handleBranchClick} initialSearch={branchSearchQuery} />;
       case 'commission-report':

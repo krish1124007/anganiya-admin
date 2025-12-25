@@ -1,5 +1,7 @@
-const API_BASE_URL = 'https://angaditya-backend.onrender.com/api/v1';
-// const API_BASE_URL = 'http://localhost:5000/api/v1';
+// const API_BASE_URL = 'https://angaditya-backend.onrender.com/api/v1';
+const API_BASE_URL = 'http://localhost:5000/api/v1';
+
+
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('accesstoken');
@@ -224,6 +226,15 @@ export const api = {
     const response = await fetch(`${API_BASE_URL}/admin/delete-all-transaction`, {
       method: 'POST',
       headers: getAuthHeaders()
+    });
+    return response.json();
+  },
+
+  createTransaction: async (transactionData) => {
+    const response = await fetch(`${API_BASE_URL}/admin/create-transaction`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(transactionData),
     });
     return response.json();
   },

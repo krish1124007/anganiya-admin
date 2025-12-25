@@ -15,10 +15,9 @@ export default function Navbar({ currentPage, setCurrentPage }) {
     const notificationRef = useRef(null);
 
     const navItems = [
-        { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { id: 'all-branches', label: 'Branches', icon: Landmark },
+        { id: 'transactions', label: 'Kgs', icon: ArrowLeftRight },
         { id: 'commission-report', label: 'Commission', icon: Building2 },
-        { id: 'transactions', label: 'Transactions', icon: ArrowLeftRight },
+        { id: 'all-branches', label: 'HO Branch Ledger', icon: Landmark },
         { id: 'create-user', label: 'Users', icon: UserPlus },
         { id: 'ip-tracing', label: 'IP', icon: Globe },
     ];

@@ -96,8 +96,8 @@ export default function TransactionDetails({ transactionId, onBack }) {
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
                             Transaction Details
                             <span className={`ml-3 px-3 py-1 text-xs rounded-full uppercase tracking-wide border ${transaction.status === 'success'
-                                    ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
-                                    : 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800'
+                                ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
+                                : 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800'
                                 }`}>
                                 {transaction.status}
                             </span>
@@ -162,6 +162,12 @@ export default function TransactionDetails({ transactionId, onBack }) {
                                     {transaction.sender_branch_name || "N/A"}
                                 </p>
                             </div>
+                            <div>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Other From</p>
+                                <p className="font-medium text-gray-900 dark:text-white flex items-center">
+                                    {transaction.other_sender || "N/A"}
+                                </p>
+                            </div>
                         </div>
                     </div>
 
@@ -188,6 +194,12 @@ export default function TransactionDetails({ transactionId, onBack }) {
                                 <p className="font-medium text-gray-900 dark:text-white flex items-center">
                                     <MapPin className="w-4 h-4 mr-1 text-gray-400" />
                                     {transaction.receiver_branch_name || "N/A"}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Other To</p>
+                                <p className="font-medium text-gray-900 dark:text-white flex items-center">
+                                    {transaction.other_receiver || "N/A"}
                                 </p>
                             </div>
                         </div>
