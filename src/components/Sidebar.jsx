@@ -1,4 +1,4 @@
-import { LayoutDashboard, Building2, ArrowLeftRight, UserPlus, LogOut, Sun, Moon, Globe } from 'lucide-react';
+import { LayoutDashboard, Building2, ArrowLeftRight, UserPlus, LogOut, Sun, Moon, Globe, Landmark } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
@@ -8,7 +8,8 @@ export default function Sidebar({ currentPage, setCurrentPage }) {
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'branches', label: 'Branches', icon: Building2 },
+    { id: 'all-branches', label: 'All Branches', icon: Landmark },
+    { id: 'commission-report', label: 'Commission Report', icon: Building2 },
     { id: 'transactions', label: 'Transactions', icon: ArrowLeftRight },
     { id: 'create-user', label: 'Create User', icon: UserPlus },
     { id: 'ip-tracing', label: 'IP Tracing', icon: Globe },
@@ -37,8 +38,8 @@ export default function Sidebar({ currentPage, setCurrentPage }) {
               key={item.id}
               onClick={() => setCurrentPage(item.id)}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 ${isActive
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
             >
               <Icon className="w-5 h-5" />

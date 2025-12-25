@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
+import { decrypt_text, decrypt_number } from '../utils/decrypt';
 import { ArrowLeftRight, Building2, TrendingUp, Calendar, Bell } from 'lucide-react';
 
 export default function Dashboard() {
@@ -16,13 +17,24 @@ export default function Dashboard() {
     setLoading(true);
     try {
       const [transactionsRes, branchesRes, statsRes] = await Promise.all([
-        api.getTodayTransactions(),
+        api.getAllTransactions(),
         api.getAllBranches(),
         api.getDailyStats()
       ]);
 
       if (transactionsRes.success) {
-        setTodayTransactions(transactionsRes.data);
+        // Decrypt and filter for unaccepted (pending) transactions
+        const pendingTransactions = transactionsRes.data
+          .filter(t => !t.status && !t.admin_permission)
+          .map(t => ({
+            ...t,
+            sender_name: decrypt_text(t.sender_name),
+            receiver_name: decrypt_text(t.receiver_name),
+            sender_mobile: decrypt_number(t.sender_mobile),
+            receiver_mobile: decrypt_number(t.receiver_mobile),
+          }))
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setTodayTransactions(pendingTransactions);
       }
       if (branchesRes.success) {
         setBranches(branchesRes.data);
@@ -145,11 +157,11 @@ export default function Dashboard() {
             <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
               <div className="flex items-center space-x-2 mb-4">
                 <Calendar className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Recent Transactions</h2>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Recent Pending Transactions</h2>
               </div>
 
               {todayTransactions.length === 0 ? (
-                <p className="text-center text-gray-500 dark:text-gray-400 py-6">No transactions today</p>
+                <p className="text-center text-gray-500 dark:text-gray-400 py-6">No pending transactions</p>
               ) : (
                 <div className="space-y-3">
                   {todayTransactions.slice(0, 5).map((transaction) => (
@@ -161,9 +173,25 @@ export default function Dashboard() {
                         <span className="font-semibold text-gray-900 dark:text-white">
                           {transaction.sender_name} → {transaction.receiver_name}
                         </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {new Date(transaction.createdAt).toLocaleTimeString()}
-                        </span>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {new Date(transaction.createdAt).toLocaleTimeString()}
+                          </span>
+                          <button
+                            onClick={async () => {
+                              if (window.confirm('Accept this transaction?')) {
+                                try {
+                                  const response = await api.giveTransactionPermission(transaction._id);
+                                  if (response.success) fetchDashboardData();
+                                } catch (e) { console.error(e); }
+                              }
+                            }}
+                            className="p-1 bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
+                            title="Accept"
+                          >
+                            <div className="w-4 h-4 text-white">✓</div>
+                          </button>
+                        </div>
                       </div>
                       <div className="grid grid-cols-2 gap-3 text-xs">
                         <div>

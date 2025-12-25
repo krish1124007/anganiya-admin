@@ -19,10 +19,19 @@ export const api = {
     return response.json();
   },
 
-  getAllTransactions: async () => {
-    const response = await fetch(`${API_BASE_URL}/admin/get-all-transactions`, {
+  getAllTransactions: async (date) => {
+    const url = `${API_BASE_URL}/admin/get-all-transactions`;
+    const options = {
       headers: getAuthHeaders()
-    });
+    };
+
+    // If date is provided, send as POST with date in body
+    if (date) {
+      options.method = 'POST';
+      options.body = JSON.stringify({ date });
+    }
+
+    const response = await fetch(url, options);
     return response.json();
   },
 
@@ -60,10 +69,19 @@ export const api = {
     return response.json();
   },
 
-  getAllBranches: async () => {
-    const response = await fetch(`${API_BASE_URL}/admin/get-all-branches`, {
+  getAllBranches: async (date) => {
+    const url = `${API_BASE_URL}/admin/get-all-branches`;
+    const options = {
       headers: getAuthHeaders()
-    });
+    };
+
+    // If date is provided, send as POST with date in body
+    if (date) {
+      options.method = 'POST';
+      options.body = JSON.stringify({ date });
+    }
+
+    const response = await fetch(url, options);
     return response.json();
   },
 
@@ -147,6 +165,15 @@ export const api = {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ transactions_id })
+    });
+    return response.json();
+  },
+
+  createRelationship: async (relationshipData) => {
+    const response = await fetch(`${API_BASE_URL}/admin/create-relationship`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(relationshipData)
     });
     return response.json();
   },

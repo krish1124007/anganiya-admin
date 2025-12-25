@@ -1,26 +1,32 @@
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
-import { ArrowLeftRight, Calendar, Search } from 'lucide-react';
+import { Search, RotateCcw, Download, Check, Calendar, X } from 'lucide-react';
 import { decrypt_number, decrypt_text } from "../utils/decrypt";
+import { exportTableToPDF, formatNumber, formatDate } from '../utils/pdfExport';
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filter, setFilter] = useState('all');
+  const [approvingId, setApprovingId] = useState(null);
+  const [selectedDate, setSelectedDate] = useState('');
 
   useEffect(() => {
     fetchTransactions();
-  }, [filter]);
+  }, []);
 
   useEffect(() => {
     if (searchTerm) {
+      const lowerTerm = searchTerm.toLowerCase();
       const filtered = transactions.filter(t =>
-        t.sender_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.receiver_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.sender_mobile.includes(searchTerm) ||
-        t.receiver_mobile.includes(searchTerm)
+        (t.sender_name || '').toLowerCase().includes(lowerTerm) ||
+        (t.receiver_name || '').toLowerCase().includes(lowerTerm) ||
+        (t.sender_branch_name || '').toLowerCase().includes(lowerTerm) ||
+        (t.receiver_branch_name || '').toLowerCase().includes(lowerTerm) ||
+        (String(t.points) || '').includes(lowerTerm) ||
+        (String(t.commission) || '').includes(lowerTerm) ||
+        new Date(t.createdAt).toLocaleDateString().includes(lowerTerm)
       );
       setFilteredTransactions(filtered);
     } else {
@@ -28,25 +34,34 @@ export default function Transactions() {
     }
   }, [searchTerm, transactions]);
 
+  // Format date from YYYY-MM-DD to dd/mm/yy for API
+  const formatDateForAPI = (dateString) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2);
+    return `${day}/${month}/${year}`;
+  };
+
   const fetchTransactions = async () => {
     setLoading(true);
     try {
-      const response =
-        filter === "today"
-          ? await api.getTodayTransactions()
-          : await api.getAllTransactions();
-
+      const dateParam = selectedDate ? formatDateForAPI(selectedDate) : null;
+      const response = await api.getAllTransactions(dateParam);
       if (response.success) {
-        // decrypt all data before setting state
+        // Handle potentially missing data gracefully
         const decrypted = response.data.map((t) => ({
           ...t,
-          sender_name: decrypt_text(t.sender_name),
-          receiver_name: decrypt_text(t.receiver_name),
-          sender_mobile: decrypt_number(t.sender_mobile),
-          receiver_mobile: decrypt_number(t.receiver_mobile),
-          points: decrypt_number(t.points),
+          sender_name: t.sender_name ? decrypt_text(t.sender_name) : '-',
+          receiver_name: t.receiver_name ? decrypt_text(t.receiver_name) : '-',
+          sender_mobile: t.sender_mobile ? decrypt_number(t.sender_mobile) : '-',
+          receiver_mobile: t.receiver_mobile ? decrypt_number(t.receiver_mobile) : '-',
+          points: t.points ? Number(decrypt_number(t.points)) : 0,
+          commission: t.commission ? Number(t.commission) : 0,
         }));
-
+        // Sort by date desc
+        decrypted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setTransactions(decrypted);
         setFilteredTransactions(decrypted);
       }
@@ -57,157 +72,268 @@ export default function Transactions() {
     }
   };
 
-  const handleDeleteAll = async () => {
-    if (!window.confirm("WARNING: Are you sure you want to delete ALL transactions? This action cannot be undone.")) return;
+  const handleApprove = async (transactionId) => {
+    setApprovingId(transactionId);
     try {
-      const response = await api.deleteAllTransactions();
+      const response = await api.giveTransactionPermission(transactionId);
       if (response.success) {
-        setFilter('all'); // Reset filter
-        fetchTransactions(); // Refresh list
-        alert("All transactions deleted successfully");
+        // Refresh transactions to reflect the update
+        await fetchTransactions();
+        alert('Transaction approved successfully!');
       } else {
-        alert(response.message || "Failed to delete transactions");
+        alert(response.message || 'Failed to approve transaction');
       }
     } catch (error) {
-      console.error("Error deleting transactions:", error);
+      console.error("Error approving transaction:", error);
+      alert('Error approving transaction');
+    } finally {
+      setApprovingId(null);
     }
   };
 
+  const handleDateChange = (e) => {
+    setSelectedDate(e.target.value);
+  };
+
+  const handleClearDate = () => {
+    setSelectedDate('');
+  };
+
+  // Fetch transactions when date changes
+  useEffect(() => {
+    fetchTransactions();
+  }, [selectedDate]);
+
+  const calculateTotals = () => {
+    return filteredTransactions.reduce((acc, t) => ({
+      points: acc.points + (Number(t.points) || 0),
+      commission: acc.commission + (Number(t.commission) || 0)
+    }), { points: 0, commission: 0 });
+  };
+
+  const totals = calculateTotals();
+
+  const handleExportPDF = () => {
+    const headers = ['Sr No', 'Date', 'Points', 'Receiver', 'Sender', 'Sender Branch', 'Receiver Branch', 'Commission', 'Admin Approval', 'Status'];
+
+    const data = filteredTransactions.map((t, index) => [
+      index + 1,
+      formatDate(t.createdAt),
+      formatNumber(t.points),
+      t.receiver_name,
+      t.sender_name,
+      t.sender_branch_name,
+      t.receiver_branch_name,
+      formatNumber(t.commission),
+      t.admin_permission ? 'Approved' : 'Not Approved',
+      t.status ? 'Complete' : 'Pending'
+    ]);
+
+    const footer = {
+      "Total Records": filteredTransactions.length,
+      "Total Points": formatNumber(totals.points),
+      "Total Commission": formatNumber(totals.commission)
+    };
+
+    exportTableToPDF({
+      title: 'All Transactions Report',
+      headers,
+      data,
+      filename: `transactions-report-${new Date().toISOString().split('T')[0]}`,
+      footer
+    });
+  };
+
   return (
-    <div className="p-8">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Transactions</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">View and manage all transactions</p>
-        </div>
-        <button
-          onClick={handleDeleteAll}
-          className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center space-x-2"
-        >
-          <span>Delete All Transactions</span>
-        </button>
-      </div>
-
-      <div className="mb-6 flex flex-col md:flex-row gap-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by name or mobile..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          />
-        </div>
-
-        <div className="flex space-x-2">
+    <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-full">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Transactions</h1>
+        <div className="flex items-center gap-3">
           <button
-            onClick={() => setFilter('all')}
-            className={`px-4 py-3 rounded-lg font-medium transition-colors ${filter === 'all'
-              ? 'bg-blue-500 text-white'
-              : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600'
-              }`}
+            onClick={handleExportPDF}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center space-x-2 transition-colors shadow"
           >
-            All Time
+            <Download className="w-4 h-4" />
+            <span>Download PDF</span>
           </button>
           <button
-            onClick={() => setFilter('today')}
-            className={`px-4 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2 ${filter === 'today'
-              ? 'bg-blue-500 text-white'
-              : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600'
-              }`}
+            onClick={fetchTransactions}
+            className="p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 hover:text-blue-500 transition-colors"
+            title="Refresh"
           >
-            <Calendar className="w-4 h-4" />
-            <span>Today</span>
+            <RotateCcw className="w-5 h-5" />
           </button>
         </div>
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex flex-col h-[calc(100vh-140px)]">
+        {/* Search Header */}
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search across all columns (Sender, Receiver, Branch, Points...)"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+
+            {/* Date Picker */}
+            <div className="relative flex gap-2">
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                  className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                  placeholder="Select date"
+                />
+              </div>
+              {selectedDate && (
+                <button
+                  onClick={handleClearDate}
+                  className="px-3 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors flex items-center gap-1"
+                  title="Clear date filter"
+                >
+                  <X className="w-4 h-4" />
+                  <span className="hidden sm:inline">Clear</span>
+                </button>
+              )}
+            </div>
+          </div>
         </div>
-      ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-          {filteredTransactions.length === 0 ? (
-            <div className="p-12 text-center">
-              <ArrowLeftRight className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500 dark:text-gray-400">No transactions found</p>
+
+        {/* Table Content */}
+        <div className="flex-1 overflow-auto">
+          {loading ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 dark:bg-gray-700">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Sender
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Receiver
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Sender Branch
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Receiver Branch
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Points
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Date & Time
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {filteredTransactions.map((transaction) => (
-                    <tr key={transaction._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">
-                            {transaction.sender_name}
-                          </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {transaction.sender_mobile}
-                          </div>
-                        </div>
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10 shadow-sm">
+                <tr>
+                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Sr No</th>
+                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Date</th>
+                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-right">Points</th>
+                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Receiver</th>
+                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Sender</th>
+                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Sender Branch</th>
+                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Receiver Branch</th>
+                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-right">Commission</th>
+                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Admin Approval</th>
+                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Status</th>
+                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {filteredTransactions.length > 0 ? (
+                  filteredTransactions.map((t, index) => (
+                    <tr key={t._id} className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                      <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{index + 1}</td>
+                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                        {new Date(t.createdAt).toLocaleString()}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">
-                            {transaction.receiver_name}
-                          </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {transaction.receiver_mobile}
-                          </div>
-                        </div>
+                      <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white text-right">
+                        {t.points.toLocaleString()}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                          {transaction.sender_branch_name}
+                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
+                        <div className="font-medium text-gray-900 dark:text-white">{t.receiver_name}</div>
+                      </td>
+                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
+                        <div className="font-medium text-gray-900 dark:text-white">{t.sender_name}</div>
+                      </td>
+                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                          {t.sender_branch_name}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                          {transaction.receiver_branch_name}
+                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
+                          {t.receiver_branch_name}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                          {transaction.points}
-                        </span>
+                      <td className="px-6 py-4 font-medium text-green-600 dark:text-green-400 text-right">
+                        {t.commission.toLocaleString()}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {new Date(transaction.createdAt).toLocaleString()}
+                      <td className="px-6 py-4">
+                        {t.admin_permission ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                            Approved
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                            Not Approved
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        {t.status ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                            Complete
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                            Pending
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        {!t.admin_permission && (
+                          <button
+                            onClick={() => handleApprove(t._id)}
+                            disabled={approvingId === t._id}
+                            className="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-xs font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
+                          >
+                            {approvingId === t._id ? (
+                              <>
+                                <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1.5"></div>
+                                Approving...
+                              </>
+                            ) : (
+                              <>
+                                <Check className="w-3 h-3 mr-1.5" />
+                                Approve
+                              </>
+                            )}
+                          </button>
+                        )}
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="11" className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                      No transactions found matching your search.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           )}
         </div>
-      )}
+
+        {/* Footer Totals */}
+        <div className="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-4">
+          <div className="flex flex-col sm:flex-row justify-between items-center text-sm font-bold text-gray-900 dark:text-white px-2 gap-4 sm:gap-0">
+            <span>Total Records: {filteredTransactions.length}</span>
+            <div className="flex gap-8">
+              <div className="flex gap-2">
+                <span className="text-gray-500 dark:text-gray-400">Total Points:</span>
+                <span>{totals.points.toLocaleString()}</span>
+              </div>
+              <div className="flex gap-2">
+                <span className="text-gray-500 dark:text-gray-400">Total Commission:</span>
+                <span className="text-green-600 dark:text-green-400">{totals.commission.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

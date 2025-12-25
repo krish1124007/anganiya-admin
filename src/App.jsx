@@ -1,5 +1,6 @@
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { NotificationProvider } from './context/NotificationContext';
 import Login from './pages/Login';
 import DashboardLayout from './components/DashboardLayout';
 import { messaging } from "./firebase";
@@ -67,7 +68,9 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <AppContent />
+        <NotificationProvider>
+          <AppContent />
+        </NotificationProvider>
       </AuthProvider>
     </ThemeProvider>
   );
