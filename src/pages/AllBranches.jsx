@@ -48,38 +48,14 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
         setLoading(true);
         try {
             const dateParam = selectedDate ? formatDateForAPI(selectedDate) : null;
-            const [branchesRes, transactionsRes] = await Promise.all([
-                api.getAllBranches(dateParam),
-                api.getAllTransactions(dateParam)
-            ]);
+            const branchesRes = await api.getAllBranches(dateParam);
 
             if (branchesRes.success) {
+                console.log(branchesRes.data);
                 setBranches(branchesRes.data);
-            }
 
-            if (transactionsRes.success) {
-                const transactions = transactionsRes.data;
-                const stats = {};
-
-                // Helper to init stats
-                const initStat = () => ({ totalCommission: 0, todayCommission: 0 });
-
-                const today = new Date().toDateString();
-
-                transactions.forEach(t => {
-                    // Calculate commission for Sender Branch
-                    const comm = Number(t.commission) || 0;
-                    if (comm > 0 && t.sender_branch_id) {
-                        if (!stats[t.sender_branch_id]) stats[t.sender_branch_id] = initStat();
-
-                        stats[t.sender_branch_id].totalCommission += comm;
-
-                        if (new Date(t.createdAt).toDateString() === today) {
-                            stats[t.sender_branch_id].todayCommission += comm;
-                        }
-                    }
-                });
-                setBranchStats(stats);
+                // Backend now provides commission data directly in branch objects
+                // No need to calculate from transactions
             }
 
         } catch (error) {
@@ -255,17 +231,18 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
         b.location.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Calculate Footer Totals
+    // Calculate Footer Totals using backend data
     const footerTotals = filteredBranches.reduce((acc, branch) => {
-        const stats = branchStats[branch._id] || { totalCommission: 0, todayCommission: 0 };
-        const openingBalance = 0; // Placeholder
-        const total = openingBalance + stats.totalCommission;
+        const openingBalance = branch.opening_balance || 0;
+        const commission = branch.commission || 0;
+        const todayCommission = branch.today_commission || 0;
+        const total = openingBalance + commission;
 
         return {
             openingBalance: acc.openingBalance + openingBalance,
-            commission: acc.commission + stats.totalCommission,
+            commission: acc.commission + commission,
             total: acc.total + total,
-            todayCommission: acc.todayCommission + stats.todayCommission
+            todayCommission: acc.todayCommission + todayCommission
         };
     }, { openingBalance: 0, commission: 0, total: 0, todayCommission: 0 });
 
@@ -274,18 +251,20 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
         const headers = ['Sr No', 'Branch Name', 'Location', 'Status', 'Opening Balance', 'Total Commission', 'Total', "Today's Commission"];
 
         const data = filteredBranches.map((branch, index) => {
-            const stats = branchStats[branch._id] || { totalCommission: 0, todayCommission: 0 };
-            const openingBalance = 0;
-            const total = openingBalance + stats.totalCommission;
+            const openingBalance = branch.opening_balance || 0;
+            const commission = branch.commission || 0;
+            const todayCommission = branch.today_commission || 0;
+            const total = openingBalance + commission;
+
             return [
                 index + 1,
                 branch.branch_name,
                 branch.location,
                 branch.active ? 'Active' : 'Inactive',
                 formatNumber(openingBalance),
-                formatNumber(stats.totalCommission),
+                formatNumber(commission),
                 formatNumber(total),
-                formatNumber(stats.todayCommission)
+                formatNumber(todayCommission)
             ];
         });
 
@@ -418,9 +397,10 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
                             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                                 {filteredBranches.length > 0 ? (
                                     filteredBranches.map((branch, index) => {
-                                        const stats = branchStats[branch._id] || { totalCommission: 0, todayCommission: 0 };
-                                        const openingBalance = 0; // Default as requested
-                                        const total = openingBalance + stats.totalCommission;
+                                        const openingBalance = branch.opening_balance || 0;
+                                        const commission = branch.commission || 0;
+                                        const todayCommission = branch.today_commission || 0;
+                                        const total = openingBalance + commission;
 
                                         return (
                                             <tr
@@ -446,13 +426,13 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
                                                     {openingBalance.toLocaleString()}
                                                 </td>
                                                 <td className="px-6 py-4 text-right text-green-600 dark:text-green-400 font-medium">
-                                                    {stats.totalCommission.toLocaleString()}
+                                                    {commission.toLocaleString()}
                                                 </td>
                                                 <td className="px-6 py-4 text-right font-bold text-gray-900 dark:text-white">
                                                     {total.toLocaleString()}
                                                 </td>
                                                 <td className="px-6 py-4 text-right text-blue-600 dark:text-blue-400 font-medium">
-                                                    {stats.todayCommission.toLocaleString()}
+                                                    {todayCommission.toLocaleString()}
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center justify-center gap-2">

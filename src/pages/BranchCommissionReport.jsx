@@ -28,37 +28,11 @@ export default function BranchCommissionReport() {
         setLoading(true);
         try {
             const dateParam = selectedDate ? formatDateForAPI(selectedDate) : null;
-            const [branchesRes, transactionsRes] = await Promise.all([
-                api.getAllBranches(dateParam),
-                api.getAllTransactions(dateParam)
-            ]);
+            const branchesRes = await api.getAllBranches(dateParam);
 
             if (branchesRes.success) {
                 setBranches(branchesRes.data);
             }
-
-            if (transactionsRes.success) {
-                const transactions = transactionsRes.data;
-                const stats = {};
-
-                const initStat = () => ({ totalCommission: 0, todayCommission: 0 });
-                const today = new Date().toDateString();
-
-                transactions.forEach(t => {
-                    const comm = Number(t.commission) || 0;
-                    if (comm > 0 && t.sender_branch_id) {
-                        if (!stats[t.sender_branch_id]) stats[t.sender_branch_id] = initStat();
-
-                        stats[t.sender_branch_id].totalCommission += comm;
-
-                        if (new Date(t.createdAt).toDateString() === today) {
-                            stats[t.sender_branch_id].todayCommission += comm;
-                        }
-                    }
-                });
-                setBranchStats(stats);
-            }
-
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -86,10 +60,9 @@ export default function BranchCommissionReport() {
 
     // Calculate Footer Totals
     const footerTotals = filteredBranches.reduce((acc, branch) => {
-        const stats = branchStats[branch._id] || { totalCommission: 0, todayCommission: 0 };
         return {
-            todayCommission: acc.todayCommission + stats.todayCommission,
-            totalCommission: acc.totalCommission + stats.totalCommission
+            todayCommission: acc.todayCommission + (branch.today_commission || 0),
+            totalCommission: acc.totalCommission + (branch.commission || 0)
         };
     }, { todayCommission: 0, totalCommission: 0 });
 
@@ -97,13 +70,12 @@ export default function BranchCommissionReport() {
         const headers = ['Sr No', 'Branch Name', 'Location', "Today's Commission", 'Total Commission'];
 
         const data = filteredBranches.map((branch, index) => {
-            const stats = branchStats[branch._id] || { totalCommission: 0, todayCommission: 0 };
             return [
                 index + 1,
                 branch.branch_name,
                 branch.location,
-                formatNumber(stats.todayCommission),
-                formatNumber(stats.totalCommission)
+                formatNumber(branch.today_commission || 0),
+                formatNumber(branch.commission || 0)
             ];
         });
 
@@ -206,8 +178,6 @@ export default function BranchCommissionReport() {
                             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                                 {filteredBranches.length > 0 ? (
                                     filteredBranches.map((branch, index) => {
-                                        const stats = branchStats[branch._id] || { totalCommission: 0, todayCommission: 0 };
-
                                         return (
                                             <tr
                                                 key={branch._id}
@@ -221,10 +191,10 @@ export default function BranchCommissionReport() {
                                                     {branch.location}
                                                 </td>
                                                 <td className="px-6 py-4 text-right text-blue-600 dark:text-blue-400 font-semibold">
-                                                    {stats.todayCommission.toLocaleString()}
+                                                    {(branch.today_commission || 0).toLocaleString()}
                                                 </td>
                                                 <td className="px-6 py-4 text-right text-green-600 dark:text-green-400 font-semibold">
-                                                    {stats.totalCommission.toLocaleString()}
+                                                    {(branch.commission || 0).toLocaleString()}
                                                 </td>
                                             </tr>
                                         );

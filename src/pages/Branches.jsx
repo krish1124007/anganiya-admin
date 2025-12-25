@@ -29,6 +29,7 @@ export default function Branches() {
     try {
       const response = await api.getAllBranches();
       if (response.success) {
+        console.log(response.data)
         setBranches(response.data);
       }
     } catch (error) {
