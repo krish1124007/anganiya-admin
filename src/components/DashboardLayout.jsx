@@ -3,11 +3,13 @@ import Navbar from './Navbar';
 import Branches from '../pages/Branches';
 import AllBranches from '../pages/AllBranches';
 import BranchCommissionReport from '../pages/BranchCommissionReport';
+import HOBranchLeader from '../pages/HOBranchLeader';
 import Transactions from '../pages/Transactions';
 import CreateUser from '../pages/CreateUser';
 import IpTracing from '../pages/IpTracing';
 import TransactionDetails from '../pages/TransactionDetails';
 import BranchDetails from '../pages/BranchDetails';
+import Settings from '../pages/Settings';
 import { api } from '../utils/api'; // For search if needed, or pass prop
 
 export default function DashboardLayout() {
@@ -47,12 +49,16 @@ export default function DashboardLayout() {
         return <AllBranches onBranchClick={handleBranchClick} initialSearch={branchSearchQuery} />;
       case 'commission-report':
         return <BranchCommissionReport />;
+      case 'ho-branch-leader':
+        return <HOBranchLeader />;
       case 'transactions':
         return <Transactions />;
       case 'create-user':
         return <CreateUser />;
       case 'ip-tracing':
         return <IpTracing />;
+      case 'settings':
+        return <Settings />;
       case 'transaction-details':
         return <TransactionDetails
           transactionId={selectedTransactionId}

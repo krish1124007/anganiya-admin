@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useNotifications } from '../context/NotificationContext';
-import { LayoutDashboard, Building2, Sun, Moon, LogOut, Menu, X, ArrowLeftRight, UserPlus, Globe, Landmark, Bell, Check } from 'lucide-react';
+import { LayoutDashboard, Building2, Sun, Moon, LogOut, Menu, X, ArrowLeftRight, UserPlus, Globe, Landmark, Bell, Check, Settings } from 'lucide-react';
 import { api } from '../utils/api';
 
 export default function Navbar({ currentPage, setCurrentPage }) {
@@ -18,8 +18,10 @@ export default function Navbar({ currentPage, setCurrentPage }) {
         { id: 'transactions', label: 'Kgs', icon: ArrowLeftRight },
         { id: 'commission-report', label: 'Commission', icon: Building2 },
         { id: 'all-branches', label: 'Branch Ledger', icon: Landmark },
+        { id: 'ho-branch-leader', label: 'HO Branch Leader', icon: Building2 },
         { id: 'create-user', label: 'Users', icon: UserPlus },
         { id: 'ip-tracing', label: 'IP', icon: Globe },
+        { id: 'settings', label: 'Settings', icon: Settings },
     ];
 
     // Close dropdown when clicking outside
