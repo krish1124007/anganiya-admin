@@ -74,6 +74,18 @@ export default function HOBranchLeader() {
     const negativeTotals = calculateTotals(negativeBranches);
     const positiveTotals = calculateTotals(positiveBranches);
 
+    // Calculate HO Balance according to formula:
+    // HO Balance = Positive Total - Negative Total - Both Commissions
+    const calculateHOBalance = () => {
+        const positiveTotal = positiveTotals.total;
+        const negativeTotal = negativeTotals.total;
+        const bothCommission = positiveTotals.commission + negativeTotals.commission;
+        
+        return positiveTotal + negativeTotal - bothCommission;
+    };
+
+    const hoBalance = calculateHOBalance();
+
     const handleExportPDF = () => {
         const headers = ['Sr No', 'City Name', 'Balance', 'Commission', 'Total'];
 
@@ -117,6 +129,7 @@ export default function HOBranchLeader() {
                 'Positive Branches Count': positiveBranches.length,
                 'Positive Total Commission': formatNumber(positiveTotals.commission),
                 'Positive Grand Total': formatNumber(positiveTotals.total),
+                'HO Balance': formatNumber(hoBalance),
             },
         });
     };
@@ -278,6 +291,16 @@ export default function HOBranchLeader() {
                                         {positiveTotals.total >= 0 ? '+' : ''}{positiveTotals.total.toLocaleString()}
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Simple HO Balance at bottom */}
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-2">
+                        <div className="flex items-center justify-center">
+                            <div className="font-bold text-gray-900 dark:text-white">HO Balance:</div>
+                            <div className={`ml-2 text-lg font-bold ${hoBalance === 0 ? 'text-blue-600 dark:text-blue-400' : hoBalance > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                {hoBalance >= 0 ? '+' : ''}{hoBalance.toLocaleString()}
                             </div>
                         </div>
                     </div>
