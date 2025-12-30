@@ -29,7 +29,8 @@ export default function BranchDetails({ branchId, onBack }) {
                 (t.sender_branch_name || '').toLowerCase().includes(lower) ||
                 (t.receiver_branch_name || '').toLowerCase().includes(lower) ||
                 String(t.points).includes(lower) ||
-                String(t.commission).includes(lower) ||
+                String(t.sender_commision || 0).includes(lower) ||
+                String(t.receiver_commision || 0).includes(lower) ||
                 new Date(t.createdAt).toLocaleDateString().includes(lower);
 
             setSentTransactions(sent.filter(filterFunc));
@@ -57,7 +58,9 @@ export default function BranchDetails({ branchId, onBack }) {
                         sender_mobile: t.sender_mobile ? decrypt_number(t.sender_mobile) : '-',
                         receiver_mobile: t.receiver_mobile ? decrypt_number(t.receiver_mobile) : '-',
                         points: t.points ? Number(decrypt_number(t.points)) : 0,
-                        commission: Number(t.commission || 0),
+                        sender_commision: Number(t.sender_commision || 0),
+                        receiver_commision: Number(t.receiver_commision || 0),
+                        commission: Number(t.commission || 0), // Keep for backward compatibility
                         opening_balance: Number(t.opening_balance || 0),
                     };
                 }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -88,13 +91,17 @@ export default function BranchDetails({ branchId, onBack }) {
         return transactions.reduce(
             (acc, t) => {
                 const points = t.points || 0;
-                const commission = t.commission || 0;
+                // Use sender_commision for sent, receiver_commision for received
+                const commission = type === 'sent'
+                    ? (t.sender_commision || 0)
+                    : (t.receiver_commision || 0);
                 const openingBalance = t.opening_balance || 0;
 
-                // For sent transactions: points and commission are negative
-                // For received transactions: points and commission are positive
-                const pointMultiplier = type === 'sent' ? -1 : 1;
-                const commissionMultiplier = type === 'sent' ? -1 : 1;
+                // For sent transactions: points are positive, commission is positive
+                // For received transactions: points are negative, commission is positive
+                const pointMultiplier = type === 'sent' ? 1 : -1;
+                // Commission is always positive
+                const commissionMultiplier = 1;
 
                 acc.points += points * pointMultiplier;
                 acc.commission += commission * commissionMultiplier;
@@ -116,19 +123,24 @@ export default function BranchDetails({ branchId, onBack }) {
     const receivedTotals = calculateTotals(receivedTransactions, 'received');
 
     // Calculate net values
-    const netPoints = receivedTotals.points + sentTotals.points; // sent is already negative
-    const netCommission = receivedTotals.commission + sentTotals.commission; // sent is already negative
+    // sentTotals.points is positive, receivedTotals.points is negative
+    const netPoints = sentTotals.points + receivedTotals.points;
+    // Both commissions are positive
+    const netCommission = sentTotals.commission + receivedTotals.commission;
 
     // Total points transferred (absolute values)
     const totalSentPoints = sentTransactions.reduce((sum, t) => sum + (t.points || 0), 0);
     const totalReceivedPoints = receivedTransactions.reduce((sum, t) => sum + (t.points || 0), 0);
 
     // Total commission earned/lost (absolute values)
-    const totalSentCommission = sentTransactions.reduce((sum, t) => sum + (t.commission || 0), 0);
-    const totalReceivedCommission = receivedTransactions.reduce((sum, t) => sum + (t.commission || 0), 0);
+    const totalSentCommission = sentTransactions.reduce((sum, t) => sum + (t.sender_commision || 0), 0);
+    const totalReceivedCommission = receivedTransactions.reduce((sum, t) => sum + (t.receiver_commision || 0), 0);
 
     // Net balance calculation
     const netBalance = openingBalance + netPoints + netCommission;
+
+    // Total balance calculation (positive balance + negative balance + commission)
+    const totalBalance = sentTotals.points + receivedTotals.points + netCommission;
 
     // Today's profit = net commission (if positive, it's profit; if negative, it's loss)
     const todayProfit = netCommission;
@@ -146,7 +158,7 @@ export default function BranchDetails({ branchId, onBack }) {
                 formatNumber(t.points),
                 t.sender_name,
                 t.sender_branch_name,
-                formatNumber(t.commission),
+                formatNumber(t.receiver_commision || 0),
             ]),
             ...sentTransactions.map((t, index) => [
                 receivedTransactions.length + index + 1,
@@ -155,7 +167,7 @@ export default function BranchDetails({ branchId, onBack }) {
                 formatNumber(t.points),
                 t.receiver_name,
                 t.receiver_branch_name,
-                formatNumber(t.commission),
+                formatNumber(t.sender_commision || 0),
             ])
         ];
 
@@ -211,10 +223,10 @@ export default function BranchDetails({ branchId, onBack }) {
                                     {new Date(t.createdAt).toLocaleDateString()} {new Date(t.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </td>
                                 <td className={`px-4 py-2 text-right font-medium ${type === 'sent'
-                                        ? 'text-gray-900 dark:text-white'
-                                        : 'text-green-600 dark:text-green-400'
+                                    ? 'text-green-600 dark:text-green-400'
+                                    : 'text-red-600 dark:text-red-400'
                                     }`}>
-                                    {type === 'sent' ? '' : '+'}{t.points.toLocaleString()}
+                                    {type === 'sent' ? '+' : '-'}{t.points.toLocaleString()}
                                 </td>
                                 <td className="px-4 py-2 text-gray-500 dark:text-gray-300">
                                     {type === 'sent' ? t.receiver_name : t.sender_name}
@@ -222,11 +234,8 @@ export default function BranchDetails({ branchId, onBack }) {
                                 <td className="px-4 py-2 text-gray-500 dark:text-gray-300">
                                     {type === 'sent' ? t.receiver_branch_name : t.sender_branch_name}
                                 </td>
-                                <td className={`px-4 py-2 text-right font-medium ${type === 'sent'
-                                        ? 'text-gray-900 dark:text-white'
-                                        : 'text-green-600 dark:text-green-400'
-                                    }`}>
-                                    {type === 'sent' ? '' : '+'}{t.commission.toLocaleString()}
+                                <td className="px-4 py-2 text-right font-medium text-green-600 dark:text-green-400">
+                                    +{(type === 'sent' ? t.sender_commision : t.receiver_commision).toLocaleString()}
                                 </td>
                             </tr>
                         ))}
@@ -303,7 +312,7 @@ export default function BranchDetails({ branchId, onBack }) {
                 <div className="border-t border-gray-200 dark:border-gray-700">
                     {/* Net Summary */}
                     <div className="bg-gray-100 dark:bg-gray-700 p-2">
-                        <div className="grid grid-cols-6 gap-2 text-xs">
+                        <div className="grid grid-cols-7 gap-2 text-xs">
                             <div className="text-center">
                                 <div className="font-bold text-gray-900 dark:text-white">NET SUMMARY</div>
                                 <div className="text-gray-500 dark:text-gray-400">
@@ -324,14 +333,20 @@ export default function BranchDetails({ branchId, onBack }) {
                             </div>
                             <div className="text-center">
                                 <div className="text-gray-500 dark:text-gray-400">Net Commission</div>
-                                <div className={`font-bold ${netCommission >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                    {netCommission >= 0 ? '+' : ''}{netCommission.toLocaleString()}
+                                <div className="font-bold text-green-600 dark:text-green-400">
+                                    +{netCommission.toLocaleString()}
                                 </div>
                             </div>
                             <div className="text-center">
                                 <div className="text-gray-500 dark:text-gray-400">Today's Profit/Loss</div>
                                 <div className={`font-bold ${todayProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                                     {todayProfit >= 0 ? '+' : ''}{todayProfit.toLocaleString()}
+                                </div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-gray-500 dark:text-gray-400">Total Balance</div>
+                                <div className={`font-bold ${totalBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                    {totalBalance >= 0 ? '+' : ''}{totalBalance.toLocaleString()}
                                 </div>
                             </div>
                             <div className="text-center">
