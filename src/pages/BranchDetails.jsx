@@ -12,10 +12,11 @@ export default function BranchDetails({ branchId, onBack }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [branchName, setBranchName] = useState('');
     const [openingBalance, setOpeningBalance] = useState(0);
+    const [selectedDate, setSelectedDate] = useState('');
 
     useEffect(() => {
         if (branchId) fetchBranchData();
-    }, [branchId]);
+    }, [branchId, selectedDate]);
 
     useEffect(() => {
         const sent = transactions.filter(t => t.direction === 'sent');
@@ -44,7 +45,7 @@ export default function BranchDetails({ branchId, onBack }) {
     const fetchBranchData = async () => {
         setLoading(true);
         try {
-            const res = await api.getTransactionBranchWise(branchId);
+            const res = await api.getTransactionBranchWise(branchId, selectedDate);
 
             if (res.success) {
                 const normalized = res.data.map(t => {
@@ -282,7 +283,7 @@ export default function BranchDetails({ branchId, onBack }) {
                 </div>
             </div>
 
-            <div className="mb-4">
+            <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
@@ -292,6 +293,23 @@ export default function BranchDetails({ branchId, onBack }) {
                         placeholder="Search all transactions..."
                         className="w-full pl-9 pr-4 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                     />
+                </div>
+                <div className="flex gap-2">
+                    <input
+                        type="date"
+                        value={selectedDate}
+                        onChange={e => setSelectedDate(e.target.value)}
+                        className="flex-1 px-4 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                        placeholder="Select date"
+                    />
+                    {selectedDate && (
+                        <button
+                            onClick={() => setSelectedDate('')}
+                            className="px-3 py-1.5 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 rounded-lg text-sm font-medium transition-colors"
+                        >
+                            Reset Date
+                        </button>
+                    )}
                 </div>
             </div>
 

@@ -28,8 +28,8 @@ export const api = {
     };
 
     // If date is provided, send as POST with date in body
+    options.method = 'POST';
     if (date) {
-      options.method = 'POST';
       options.body = JSON.stringify({ date });
     }
 
@@ -137,11 +137,18 @@ export const api = {
     }
   },
 
-  getTransactionBranchWise: async (branch_id) => {
+  getTransactionBranchWise: async (branch_id, date) => {
+    const body = { branch_id };
+
+    // If date is provided, include it in the request body
+    if (date) {
+      body.date = date;
+    }
+
     const response = await fetch(`${API_BASE_URL}/admin/get-transaction-branch-wise`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ branch_id })
+      body: JSON.stringify(body)
     });
     return response.json();
   },
