@@ -41,7 +41,7 @@ export default function CommissionTransfer({ onBack }) {
 
     // Calculate total commission (not including today's commission)
     const totalCommission = filteredBranches.reduce((sum, branch) => {
-        return sum + (branch.commission || 0);
+        return sum + (branch.commission || branch.total_commission || 0);
     }, 0);
 
     return (
@@ -130,7 +130,7 @@ export default function CommissionTransfer({ onBack }) {
                             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                                 {filteredBranches.length > 0 ? (
                                     filteredBranches.map((branch, index) => {
-                                        const commission = branch.commission || 0;
+                                        const commission = branch.commission||branch.total_commission|| 0;
 
                                         return (
                                             <tr
