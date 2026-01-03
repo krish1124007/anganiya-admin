@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import Navbar from './Navbar';
-import Branches from '../pages/Branches';
 import AllBranches from '../pages/AllBranches';
 import BranchCommissionReport from '../pages/BranchCommissionReport';
 import HOBranchLeader from '../pages/HOBranchLeader';

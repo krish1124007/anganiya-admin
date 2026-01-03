@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
-import { Search, RotateCcw, Download, Check, Calendar, X, Plus } from 'lucide-react';
+import { Search, RotateCcw, Download, Check, Calendar, X, Plus, Edit } from 'lucide-react';
 import { decrypt_number, decrypt_text } from "../utils/decrypt";
 import { exportTableToPDF, formatNumber, formatDate } from '../utils/pdfExport';
 
@@ -16,6 +16,18 @@ export default function Transactions() {
   const [createFormData, setCreateFormData] = useState({
     sender_branch: '',
     receiver_branch: '',
+    points: '',
+    receiver_name: '',
+    receiver_mobile: '',
+    sender_name: '',
+    sender_mobile: '',
+    commission: '',
+    other_receiver: '',
+    other_sender: ''
+  });
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState(null);
+  const [editFormData, setEditFormData] = useState({
     points: '',
     receiver_name: '',
     receiver_mobile: '',
@@ -189,6 +201,76 @@ export default function Transactions() {
     } catch (error) {
       console.error("Error creating transaction:", error);
       alert("Error creating transaction");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditTransaction = (transaction) => {
+    setEditingTransaction(transaction);
+    setEditFormData({
+      points: String(transaction.points),
+      receiver_name: transaction.receiver_name,
+      receiver_mobile: String(transaction.receiver_mobile),
+      sender_name: transaction.sender_name,
+      sender_mobile: String(transaction.sender_mobile),
+      commission: String(transaction.commission),
+      other_receiver: transaction.other_receiver || '',
+      other_sender: transaction.other_sender || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setEditingTransaction(null);
+    setEditFormData({
+      points: '',
+      receiver_name: '',
+      receiver_mobile: '',
+      sender_name: '',
+      sender_mobile: '',
+      commission: '',
+      other_receiver: '',
+      other_sender: ''
+    });
+  };
+
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmitEdit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      // Prepare update data - only send fields that can be updated
+      const update_data = {
+        points: Number(editFormData.points),
+        receiver_name: editFormData.receiver_name,
+        receiver_mobile: Number(editFormData.receiver_mobile),
+        sender_name: editFormData.sender_name,
+        sender_mobile: Number(editFormData.sender_mobile),
+        commission: Number(editFormData.commission),
+        other_receiver: editFormData.other_receiver,
+        other_sender: editFormData.other_sender
+      };
+
+      const response = await api.editTransaction(editingTransaction._id, update_data);
+      if (response.success) {
+        alert("Transaction updated successfully!");
+        handleCloseEditModal();
+        fetchTransactions();
+      } else {
+        alert(response.message || "Failed to update transaction");
+      }
+    } catch (error) {
+      console.error("Error updating transaction:", error);
+      alert("Error updating transaction");
     } finally {
       setLoading(false);
     }
@@ -381,25 +463,35 @@ export default function Transactions() {
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        {!t.admin_permission && (
+                        <div className="flex items-center gap-2">
                           <button
-                            onClick={() => handleApprove(t._id)}
-                            disabled={approvingId === t._id}
-                            className="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-xs font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
+                            onClick={() => handleEditTransaction(t)}
+                            className="inline-flex items-center px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-lg transition-colors"
+                            title="Edit Transaction"
                           >
-                            {approvingId === t._id ? (
-                              <>
-                                <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1.5"></div>
-                                Approving...
-                              </>
-                            ) : (
-                              <>
-                                <Check className="w-3 h-3 mr-1.5" />
-                                Approve
-                              </>
-                            )}
+                            <Edit className="w-3 h-3 mr-1.5" />
+                            Edit
                           </button>
-                        )}
+                          {!t.admin_permission && (
+                            <button
+                              onClick={() => handleApprove(t._id)}
+                              disabled={approvingId === t._id}
+                              className="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-xs font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
+                            >
+                              {approvingId === t._id ? (
+                                <>
+                                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1.5"></div>
+                                  Approving...
+                                </>
+                              ) : (
+                                <>
+                                  <Check className="w-3 h-3 mr-1.5" />
+                                  Approve
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -594,6 +686,141 @@ export default function Transactions() {
                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                   >
                     {loading ? 'Creating...' : 'Create Transaction'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )
+      }
+
+      {/* Edit Transaction Modal */}
+      {
+        showEditModal && editingTransaction && (
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-orange-50 dark:bg-orange-900/20 rounded-t-lg">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Edit Transaction</h2>
+                <button onClick={handleCloseEditModal} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmitEdit} className="p-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Amount & Commission */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Points (Amount)</label>
+                    <input
+                      type="number"
+                      name="points"
+                      value={editFormData.points}
+                      onChange={handleEditInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Commission</label>
+                    <input
+                      type="number"
+                      name="commission"
+                      value={editFormData.commission}
+                      onChange={handleEditInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500"
+                    />
+                  </div>
+
+                  {/* Sender Details */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Sender Name</label>
+                    <input
+                      type="text"
+                      name="sender_name"
+                      value={editFormData.sender_name}
+                      onChange={handleEditInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Sender Mobile</label>
+                    <input
+                      type="number"
+                      name="sender_mobile"
+                      value={editFormData.sender_mobile}
+                      onChange={handleEditInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500"
+                    />
+                  </div>
+
+                  {/* Receiver Details */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Receiver Name</label>
+                    <input
+                      type="text"
+                      name="receiver_name"
+                      value={editFormData.receiver_name}
+                      onChange={handleEditInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Receiver Mobile</label>
+                    <input
+                      type="number"
+                      name="receiver_mobile"
+                      value={editFormData.receiver_mobile}
+                      onChange={handleEditInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500"
+                    />
+                  </div>
+
+                  {/* Other Fields */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Other Sender (Optional)</label>
+                    <input
+                      type="text"
+                      name="other_sender"
+                      value={editFormData.other_sender}
+                      onChange={handleEditInputChange}
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Other Receiver (Optional)</label>
+                    <input
+                      type="text"
+                      name="other_receiver"
+                      value={editFormData.other_receiver}
+                      onChange={handleEditInputChange}
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    type="button"
+                    onClick={handleCloseEditModal}
+                    className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  >
+                    {loading ? 'Updating...' : 'Update Transaction'}
                   </button>
                 </div>
               </form>

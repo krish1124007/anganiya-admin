@@ -252,4 +252,13 @@ export const api = {
     });
     return response.json();
   },
+
+  editTransaction: async (transaction_id, update_data) => {
+    const response = await fetch(`${API_BASE_URL}/admin/edit-transaction`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ transaction_id, update_data })
+    });
+    return response.json();
+  },
 };
