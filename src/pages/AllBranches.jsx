@@ -29,10 +29,8 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
     }, [initialSearch]);
 
     useEffect(() => {
-        if (loading) {
-            fetchAllData();
-        }
-    }, []);
+        fetchAllData();
+    }, [selectedDate]);
 
 
     const fetchAllData = async () => {
@@ -63,12 +61,6 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
     const handleClearDate = () => {
         setSelectedDate('');
     };
-
-    // Fetch data when date changes
-    useEffect(() => {
-        if (!loading) return; // Skip first render
-        fetchAllData();
-    }, [selectedDate]);
 
     const handleCreate = async (e) => {
         e.preventDefault();

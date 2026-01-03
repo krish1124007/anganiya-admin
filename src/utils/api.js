@@ -78,8 +78,8 @@ export const api = {
     };
 
     // If date is provided, send as POST with date in body
+    options.method = 'POST';
     if (date) {
-      options.method = 'POST';
       options.body = JSON.stringify({ date });
     }
 

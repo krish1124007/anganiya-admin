@@ -15,9 +15,17 @@ export default function HOBranchLeader() {
     }, []);
 
     useEffect(() => {
+        // Filter out branches where BOTH balance and commission are 0
+        const filteredBranches = branches.filter(b => {
+            const balance = b.opening_balance || 0;
+            const commission = b.commission || 0;
+            // Keep branch if either balance OR commission is non-zero
+            return balance !== 0 || commission !== 0;
+        });
+
         // Split branches based on opening balance
-        const negative = branches.filter(b => (b.opening_balance || 0) < 0);
-        const positive = branches.filter(b => (b.opening_balance || 0) >= 0);
+        const negative = filteredBranches.filter(b => (b.opening_balance || 0) < 0);
+        const positive = filteredBranches.filter(b => (b.opening_balance || 0) >= 0);
 
         // Apply search filter
         if (searchTerm) {
@@ -80,7 +88,7 @@ export default function HOBranchLeader() {
         const positiveTotal = positiveTotals.total;
         const negativeTotal = negativeTotals.total;
         const bothCommission = positiveTotals.commission + negativeTotals.commission;
-        
+
         return positiveTotal + negativeTotal - bothCommission;
     };
 
@@ -248,11 +256,17 @@ export default function HOBranchLeader() {
                     <div className="grid grid-cols-2 divide-x divide-gray-200 dark:divide-gray-700">
                         {/* Negative Totals */}
                         <div className="bg-red-50 dark:bg-red-900/20 p-2">
-                            <div className="grid grid-cols-3 gap-2 text-xs">
+                            <div className="grid grid-cols-4 gap-2 text-xs">
                                 <div className="text-center">
                                     <div className="font-bold text-gray-900 dark:text-white">NEGATIVE TOTAL</div>
                                     <div className="text-gray-500 dark:text-gray-400">
                                         {negativeTotals.count} branches
+                                    </div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-gray-500 dark:text-gray-400">Total Balance</div>
+                                    <div className={`font-bold ${negativeTotals.openingBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                        {negativeTotals.openingBalance >= 0 ? '+' : ''}{negativeTotals.openingBalance.toLocaleString()}
                                     </div>
                                 </div>
                                 <div className="text-center">
@@ -272,11 +286,17 @@ export default function HOBranchLeader() {
 
                         {/* Positive Totals */}
                         <div className="bg-green-50 dark:bg-green-900/20 p-2">
-                            <div className="grid grid-cols-3 gap-2 text-xs">
+                            <div className="grid grid-cols-4 gap-2 text-xs">
                                 <div className="text-center">
                                     <div className="font-bold text-gray-900 dark:text-white">POSITIVE TOTAL</div>
                                     <div className="text-gray-500 dark:text-gray-400">
                                         {positiveTotals.count} branches
+                                    </div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-gray-500 dark:text-gray-400">Total Balance</div>
+                                    <div className={`font-bold ${positiveTotals.openingBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                        {positiveTotals.openingBalance >= 0 ? '+' : ''}{positiveTotals.openingBalance.toLocaleString()}
                                     </div>
                                 </div>
                                 <div className="text-center">
@@ -294,7 +314,7 @@ export default function HOBranchLeader() {
                             </div>
                         </div>
                     </div>
-                    
+
                     {/* Simple HO Balance at bottom */}
                     <div className="bg-blue-50 dark:bg-blue-900/20 p-2">
                         <div className="flex items-center justify-center">
