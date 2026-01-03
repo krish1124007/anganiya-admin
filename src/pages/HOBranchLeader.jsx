@@ -15,12 +15,25 @@ export default function HOBranchLeader() {
     }, []);
 
     useEffect(() => {
-        // Filter out branches where BOTH balance and commission are 0
+        // Filter branches: Show if commission is non-zero OR has transactions
+        // Balance alone is NOT enough to show a branch
+        // Also exclude branches with 'commission' in the name
         const filteredBranches = branches.filter(b => {
-            const balance = b.opening_balance || 0;
             const commission = b.commission || 0;
-            // Keep branch if either balance OR commission is non-zero
-            return balance !== 0 || commission !== 0;
+            const transactionCount = b.transaction_count || { sent: 0, received: 0, total: 0 };
+            const branchName = (b.branch_name || '').toLowerCase();
+
+            // Exclude branches with 'commission' in the name
+            if (branchName.includes('commission')) {
+                return false;
+            }
+
+            // Show if at least ONE of these is true:
+            const hasNonZeroCommission = commission !== 0;
+            const hasTransactions = transactionCount.sent > 0 || transactionCount.received > 0;
+
+            // Balance is ignored - only commission or transactions matter
+            return hasNonZeroCommission || hasTransactions;
         });
 
         // Split branches based on opening balance
