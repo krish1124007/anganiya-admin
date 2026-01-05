@@ -45,10 +45,14 @@ export default function BranchDetails({ branchId, onBack }) {
     const fetchBranchData = async () => {
         setLoading(true);
         try {
-            const res = await api.getTransactionBranchWise(branchId, selectedDate);
+            // Fetch both transaction data and branch data
+            const [transactionRes, branchesRes] = await Promise.all([
+                api.getTransactionBranchWise(branchId, selectedDate),
+                api.getAllBranches(selectedDate)
+            ]);
 
-            if (res.success) {
-                const normalized = res.data.map(t => {
+            if (transactionRes.success) {
+                const normalized = transactionRes.data.map(t => {
                     const isSent = String(t.sender_branch) === String(branchId);
 
                     return {
@@ -62,17 +66,21 @@ export default function BranchDetails({ branchId, onBack }) {
                         sender_commision: Number(t.sender_commision || 0),
                         receiver_commision: Number(t.receiver_commision || 0),
                         commission: Number(t.commission || 0), // Keep for backward compatibility
-                        opening_balance: Number(t.opening_balance || 0),
                     };
                 }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
                 setTransactions(normalized);
 
-                // Calculate total opening balance from all transactions
-                const totalOpening = normalized.reduce((sum, t) => sum + (t.opening_balance || 0), 0);
-                setOpeningBalance(totalOpening);
-
-                if (normalized.length > 0) {
+                // Get opening balance from the branches API
+                if (branchesRes.success && branchesRes.data) {
+                    const branch = branchesRes.data.find(b => String(b._id) === String(branchId));
+                    if (branch) {
+                        setOpeningBalance(Number(branch.opening_balance || 0));
+                        setBranchName(branch.branch_name || '');
+                    }
+                } else if (normalized.length > 0) {
+                    // Fallback: set opening balance to 0 if branches API fails
+                    setOpeningBalance(0);
                     const t = normalized[0];
                     setBranchName(
                         String(t.sender_branch) === String(branchId)
@@ -137,8 +145,8 @@ export default function BranchDetails({ branchId, onBack }) {
     const totalSentCommission = sentTransactions.reduce((sum, t) => sum + (t.sender_commision || 0), 0);
     const totalReceivedCommission = receivedTransactions.reduce((sum, t) => sum + (t.receiver_commision || 0), 0);
 
-    // Net balance calculation
-    const netBalance = openingBalance + netPoints + netCommission;
+    // Closing balance calculation: Opening Balance + Net Commission
+    const netBalance = openingBalance + netCommission;
 
     // Total balance calculation (positive balance + negative balance + commission)
     const totalBalance = sentTotals.points + receivedTotals.points + netCommission;
