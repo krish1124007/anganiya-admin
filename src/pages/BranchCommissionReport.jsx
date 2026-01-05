@@ -57,8 +57,7 @@ export default function BranchCommissionReport() {
     }, [selectedDate]);
 
     const filteredBranches = branches.filter(b =>
-        b.branch_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        b.location.toLowerCase().includes(searchTerm.toLowerCase())
+        b.branch_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     // Calculate Footer Totals
@@ -70,13 +69,12 @@ export default function BranchCommissionReport() {
     }, { todayCommission: 0, totalCommission: 0 });
 
     const handleExportPDF = () => {
-        const headers = ['Sr No', 'Branch Name', 'Location', "Today's Commission", 'Total Commission'];
+        const headers = ['Sr No', 'Branch Name', "Today's Commission", 'Total Commission'];
 
         const data = filteredBranches.map((branch, index) => {
             return [
                 index + 1,
                 branch.branch_name,
-                branch.location,
                 formatNumber(branch.today_commission || 0),
                 formatNumber(branch.commission || 0)
             ];
@@ -203,7 +201,6 @@ export default function BranchCommissionReport() {
                                 <tr>
                                     <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Sr No</th>
                                     <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Branch Name</th>
-                                    <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Location</th>
                                     <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-right">Today's Commission</th>
                                     <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-right">Total Commission</th>
                                 </tr>
@@ -220,9 +217,6 @@ export default function BranchCommissionReport() {
                                                 <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
                                                     {branch.branch_name}
                                                 </td>
-                                                <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
-                                                    {branch.location}
-                                                </td>
                                                 <td className="px-6 py-4 text-right text-blue-600 dark:text-blue-400 font-semibold">
                                                     {(branch.today_commission || 0).toLocaleString()}
                                                 </td>
@@ -234,7 +228,7 @@ export default function BranchCommissionReport() {
                                     })
                                 ) : (
                                     <tr>
-                                        <td colSpan="5" className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                                        <td colSpan="4" className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                                             No branches found matching your search.
                                         </td>
                                     </tr>

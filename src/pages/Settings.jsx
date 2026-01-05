@@ -307,7 +307,6 @@ export default function Settings() {
                                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                         <tr>
                                             <th className="px-6 py-3">Branch Name</th>
-                                            <th className="px-6 py-3">Location</th>
                                             <th className="px-6 py-3 text-right">Opening Balance</th>
                                             <th className="px-6 py-3 text-right">Today Commission</th>
                                             <th className="px-6 py-3 text-right">Total Commission</th>
@@ -320,12 +319,9 @@ export default function Settings() {
                                                 <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
                                                     {branch.branch_name}
                                                 </td>
-                                                <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
-                                                    {branch.location}
-                                                </td>
                                                 <td className={`px-6 py-4 text-right font-semibold ${branch.opening_balance < 0
-                                                        ? 'text-red-600 dark:text-red-400'
-                                                        : 'text-green-600 dark:text-green-400'
+                                                    ? 'text-red-600 dark:text-red-400'
+                                                    : 'text-green-600 dark:text-green-400'
                                                     }`}>
                                                     {formatNumber(branch.opening_balance)}
                                                 </td>
@@ -337,8 +333,8 @@ export default function Settings() {
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${branch.active
-                                                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                                                            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                                        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
                                                         }`}>
                                                         {branch.active ? 'Active' : 'Inactive'}
                                                     </span>
@@ -397,10 +393,10 @@ export default function Settings() {
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${txn.status
-                                                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                                                            : txn.admin_permission
-                                                                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                                                                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                                        : txn.admin_permission
+                                                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                                            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
                                                         }`}>
                                                         {txn.status ? 'Completed' : txn.admin_permission ? 'Approved' : 'Pending'}
                                                     </span>

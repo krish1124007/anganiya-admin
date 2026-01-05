@@ -210,8 +210,7 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
     };
 
     const filteredBranches = branches.filter(b =>
-        b.branch_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        b.location.toLowerCase().includes(searchTerm.toLowerCase())
+        b.branch_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     // Calculate Footer Totals using backend data
@@ -231,7 +230,7 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
 
 
     const handleExportPDF = () => {
-        const headers = ['Sr No', 'Branch Name', 'Location', 'Status', 'Opening Balance', 'Total Commission', 'Total', "Today's Commission"];
+        const headers = ['Sr No', 'City Name', 'Status', 'Opening Balance', 'Total Commission', 'Total', "Today's Commission"];
 
         const data = filteredBranches.map((branch, index) => {
             const openingBalance = branch.opening_balance || 0;
@@ -242,7 +241,6 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
             return [
                 index + 1,
                 branch.branch_name,
-                branch.location,
                 branch.active ? 'Active' : 'Inactive',
                 formatNumber(openingBalance),
                 formatNumber(commission),
@@ -368,7 +366,7 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10 shadow-sm">
                                 <tr>
                                     <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Sr No</th>
-                                    <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">City Name (Location)</th>
+                                    <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">City Name</th>
                                     <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Status</th>
                                     <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-right">Opening Balance</th>
                                     <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-right">Total Commission</th>
@@ -393,7 +391,7 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
                                             >
                                                 <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{index + 1}</td>
                                                 <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
-                                                    {branch.location} <span className="text-gray-500 font-normal">({branch.branch_name})</span>
+                                                    {branch.branch_name}
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <span
@@ -587,7 +585,7 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
                                     <option value="">Select Branch 1</option>
                                     {branches.map(branch => (
                                         <option key={branch._id} value={branch._id}>
-                                            {branch.branch_name} ({branch.location})
+                                            {branch.branch_name}
                                         </option>
                                     ))}
                                 </select>
@@ -624,7 +622,7 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
                                         .filter(branch => branch._id !== relationshipForm.branch1_id)
                                         .map(branch => (
                                             <option key={branch._id} value={branch._id}>
-                                                {branch.branch_name} ({branch.location})
+                                                {branch.branch_name}
                                             </option>
                                         ))}
                                 </select>
@@ -654,9 +652,10 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
                                 <span>Create Relationship</span>
                             </button>
                         </form>
-                    </div>
-                </div>
-            )}
-        </div>
+                    </div >
+                </div >
+            )
+            }
+        </div >
     );
 }

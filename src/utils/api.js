@@ -261,4 +261,12 @@ export const api = {
     });
     return response.json();
   },
+
+  finalizeCommission: async () => {
+    const response = await fetch(`${API_BASE_URL}/admin/finalize-commission`, {
+      method: 'POST',
+      headers: getAuthHeaders()
+    });
+    return response.json();
+  },
 };

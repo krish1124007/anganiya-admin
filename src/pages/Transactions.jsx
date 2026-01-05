@@ -552,7 +552,7 @@ export default function Transactions() {
                     >
                       <option value="">Select Sender Branch</option>
                       {branches.map(b => (
-                        <option key={b._id} value={b._id}>{b.branch_name} ({b.location})</option>
+                        <option key={b._id} value={b._id}>{b.branch_name}</option>
                       ))}
                     </select>
                   </div>
@@ -568,7 +568,7 @@ export default function Transactions() {
                     >
                       <option value="">Select Receiver Branch</option>
                       {branches.map(b => (
-                        <option key={b._id} value={b._id}>{b.branch_name} ({b.location})</option>
+                        <option key={b._id} value={b._id}>{b.branch_name}</option>
                       ))}
                     </select>
                   </div>

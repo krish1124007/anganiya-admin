@@ -131,12 +131,6 @@ export default function BranchDetails({ branchId, onBack }) {
     const sentTotals = calculateTotals(sentTransactions, 'sent');
     const receivedTotals = calculateTotals(receivedTransactions, 'received');
 
-    // Calculate net values
-    // sentTotals.points is positive, receivedTotals.points is negative
-    const netPoints = sentTotals.points + receivedTotals.points;
-    // Both commissions are positive
-    const netCommission = sentTotals.commission + receivedTotals.commission;
-
     // Total points transferred (absolute values)
     const totalSentPoints = sentTransactions.reduce((sum, t) => sum + (t.points || 0), 0);
     const totalReceivedPoints = receivedTransactions.reduce((sum, t) => sum + (t.points || 0), 0);
@@ -145,14 +139,15 @@ export default function BranchDetails({ branchId, onBack }) {
     const totalSentCommission = sentTransactions.reduce((sum, t) => sum + (t.sender_commision || 0), 0);
     const totalReceivedCommission = receivedTransactions.reduce((sum, t) => sum + (t.receiver_commision || 0), 0);
 
-    // Closing balance calculation: Opening Balance + Net Commission
-    const netBalance = openingBalance + netCommission;
-
-    // Total balance calculation (positive balance + negative balance + commission)
-    const totalBalance = sentTotals.points + receivedTotals.points + netCommission;
-
-    // Today's profit = net commission (if positive, it's profit; if negative, it's loss)
-    const todayProfit = netCommission;
+    // --- Ledger Calculations (matching the requested image logic) ---
+    // Net Points = Received - Sent (so inflow is positive)
+    const netPointsValue = totalReceivedPoints - totalSentPoints;
+    // Total Commission earned (sum of all commissions)
+    const totalNetCommission = totalSentCommission + totalReceivedCommission;
+    // Balance Before Commission = Opening + Net Points
+    const balanceBeforeCommission = openingBalance + netPointsValue;
+    // Balance After Commission (Final Balance) = Bal Before Comm + Commission
+    const balanceAfterCommission = balanceBeforeCommission + totalNetCommission;
 
     const handleExportPDF = () => {
         const headers = [
@@ -189,12 +184,10 @@ export default function BranchDetails({ branchId, onBack }) {
                 'Opening Balance': formatNumber(openingBalance),
                 'Total Received Points': formatNumber(totalReceivedPoints),
                 'Total Sent Points': formatNumber(totalSentPoints),
-                'Total Received Commission': formatNumber(totalReceivedCommission),
-                'Total Sent Commission': formatNumber(totalSentCommission),
-                'Net Points': formatNumber(netPoints),
-                'Net Commission': formatNumber(netCommission),
-                'Today\'s Profit/Loss': formatNumber(todayProfit),
-                'Closing Balance': formatNumber(netBalance),
+                'Net Points': formatNumber(netPointsValue),
+                'Total Commission': formatNumber(totalNetCommission),
+                'Balance Before Commission': formatNumber(balanceBeforeCommission),
+                'Balance After Commission': formatNumber(balanceAfterCommission),
             },
         });
     };
@@ -208,7 +201,7 @@ export default function BranchDetails({ branchId, onBack }) {
                     </h3>
                 </div>
             </div>
-            <div className="overflow-auto h-[calc(100%-50px)]">
+            <div className="overflow-auto h-[calc(100%-100px)]">
                 <table className="w-full text-xs">
                     <thead className="sticky top-0 bg-gray-50 dark:bg-gray-700">
                         <tr>
@@ -251,6 +244,34 @@ export default function BranchDetails({ branchId, onBack }) {
                     </tbody>
                 </table>
             </div>
+
+            {/* In-table Summary Footer (Numerical Calculations) */}
+            <div className="bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700 p-3">
+                <div className="flex items-center justify-between text-gray-900 dark:text-white">
+                    <div>
+                        <p className="text-[10px] text-gray-500 font-bold">{data.length} Record(s)</p>
+                    </div>
+                    <div className="flex gap-6">
+                        {type === 'received' ? (
+                            <div className="text-right">
+                                <p className="text-[10px] text-gray-500 uppercase font-black tracking-wider">Rec Point + Comm</p>
+                                <p className="text-lg font-black text-red-600">
+                                    {(totalReceivedPoints + totalReceivedCommission).toLocaleString()}
+                                </p>
+                                <p className="text-[8px] text-gray-400">({totalReceivedPoints.toLocaleString()} + {totalReceivedCommission.toLocaleString()})</p>
+                            </div>
+                        ) : (
+                            <div className="text-right">
+                                <p className="text-[10px] text-gray-500 uppercase font-black tracking-wider">Sent Point + Comm</p>
+                                <p className="text-lg font-black text-green-600">
+                                    {(totalSentPoints + totalSentCommission).toLocaleString()}
+                                </p>
+                                <p className="text-[8px] text-gray-400">({totalSentPoints.toLocaleString()} + {totalSentCommission.toLocaleString()})</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 
@@ -291,14 +312,41 @@ export default function BranchDetails({ branchId, onBack }) {
                 </div>
             </div>
 
-            <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="relative">
+            <div className="mb-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                {/* Left Side Boxes: Total Points & Total Commission */}
+                {/* <div className="flex gap-3">
+                    <div className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm">
+                        <p className="text-[10px] uppercase font-bold opacity-80">Total Points</p>
+                        <p className="text-xl font-black">
+                            {(totalSentPoints + totalReceivedPoints).toLocaleString()}
+                        </p>
+                    </div>
+                    <div className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-sm">
+                        <p className="text-[10px] uppercase font-bold opacity-80">Total Commission</p>
+                        <p className="text-xl font-black">
+                            {totalNetCommission.toLocaleString()}
+                        </p>
+                    </div>
+                </div> */}
+
+                {/* Right Side Box: Opening Balance */}
+                <div className="bg-white dark:bg-gray-800 border-2 border-primary-500 px-4 py-2 rounded-lg shadow-sm">
+                    <p className="text-[10px] text-gray-500 uppercase font-black">Opening Balance</p>
+                    <p className={`text-xl font-black ${openingBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {openingBalance.toLocaleString()}
+                    </p>
+                </div>
+            </div>
+
+            {/* Search and Date Row */}
+            <div className="mb-4 flex flex-col md:flex-row gap-3">
+                <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                         type="text"
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
-                        placeholder="Search all transactions..."
+                        placeholder="Search transactions..."
                         className="w-full pl-9 pr-4 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                     />
                 </div>
@@ -307,15 +355,14 @@ export default function BranchDetails({ branchId, onBack }) {
                         type="date"
                         value={selectedDate}
                         onChange={e => setSelectedDate(e.target.value)}
-                        className="flex-1 px-4 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                        placeholder="Select date"
+                        className="px-4 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                     />
                     {selectedDate && (
                         <button
                             onClick={() => setSelectedDate('')}
                             className="px-3 py-1.5 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 rounded-lg text-sm font-medium transition-colors"
                         >
-                            Reset Date
+                            Reset
                         </button>
                     )}
                 </div>
@@ -334,52 +381,46 @@ export default function BranchDetails({ branchId, onBack }) {
                     </div>
                 )}
 
-                {/* Summary Footer - Only NET SUMMARY */}
-                <div className="border-t border-gray-200 dark:border-gray-700">
-                    {/* Net Summary */}
-                    <div className="bg-gray-100 dark:bg-gray-700 p-2">
-                        <div className="grid grid-cols-7 gap-2 text-xs">
-                            <div className="text-center">
-                                <div className="font-bold text-gray-900 dark:text-white">NET SUMMARY</div>
-                                <div className="text-gray-500 dark:text-gray-400">
-                                    {sentTotals.count + receivedTotals.count} transactions
+                <div className="border-t-2 border-gray-300 dark:border-gray-600">
+                    <div className="bg-gray-200 dark:bg-gray-800 p-4">
+                        <div className="grid grid-cols-4 gap-6 items-center">
+
+                             {/* Receive Calculation Box */}
+                            <div className="bg-white dark:bg-gray-700 p-2 rounded border border-gray-300 dark:border-gray-600">
+                                <p className="text-[10px] text-gray-500 uppercase font-bold text-center border-b pb-1 mb-1">Receive Calculation</p>
+                                <div className="flex justify-between text-[11px] font-bold">
+                                    <span>Points + Comm:</span>
+                                    <span className="text-red-600">{(totalReceivedPoints + totalReceivedCommission).toLocaleString()}</span>
                                 </div>
                             </div>
+                            {/* Send Calculation Box */}
+                            <div className="bg-white dark:bg-gray-700 p-2 rounded border border-gray-300 dark:border-gray-600">
+                                <p className="text-[10px] text-gray-500 uppercase font-bold text-center border-b pb-1 mb-1">Sent Calculation</p>
+                                <div className="flex justify-between text-[11px] font-bold">
+                                    <span>Points + Comm:</span>
+                                    <span className="text-green-600">{(totalSentPoints + totalSentCommission).toLocaleString()}</span>
+                                </div>
+                            </div>
+
+                           
+                            
+
+                            {/* Bal Before Comm */}
                             <div className="text-center">
-                                <div className="text-gray-500 dark:text-gray-400">Opening Balance</div>
-                                <div className={`font-bold ${openingBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                <p className="text-[10px] text-gray-500 uppercase font-black">before commision</p>
+                                <p className="text-2xl font-black text-blue-600">
                                     {openingBalance.toLocaleString()}
-                                </div>
+                                </p>
+                                <p className="text-[9px] text-gray-400 mt-1">(opening balance)</p>
                             </div>
+
+                            {/* Final Balance */}
                             <div className="text-center">
-                                <div className="text-gray-500 dark:text-gray-400">Net Points</div>
-                                <div className={`font-bold ${netPoints >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                    {netPoints >= 0 ? '+' : ''}{netPoints.toLocaleString()}
-                                </div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-gray-500 dark:text-gray-400">Net Commission</div>
-                                <div className="font-bold text-green-600 dark:text-green-400">
-                                    +{netCommission.toLocaleString()}
-                                </div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-gray-500 dark:text-gray-400">Today's Profit/Loss</div>
-                                <div className={`font-bold ${todayProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                    {todayProfit >= 0 ? '+' : ''}{todayProfit.toLocaleString()}
-                                </div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-gray-500 dark:text-gray-400">Total Balance</div>
-                                <div className={`font-bold ${totalBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                    {totalBalance >= 0 ? '+' : ''}{totalBalance.toLocaleString()}
-                                </div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-gray-500 dark:text-gray-400">Closing Balance</div>
-                                <div className={`font-bold ${netBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                    {netBalance >= 0 ? '+' : ''}{netBalance.toLocaleString()}
-                                </div>
+                                <p className="text-[10px] text-gray-500 uppercase font-black">after comiision</p>
+                                <p className="text-2xl font-black text-green-600">
+                                    {(openingBalance + totalNetCommission).toLocaleString()}
+                                </p>
+                                <p className="text-[9px] text-gray-400 mt-1">(opening balance + total comiission)</p>
                             </div>
                         </div>
                     </div>

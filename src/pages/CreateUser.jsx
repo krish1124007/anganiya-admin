@@ -212,7 +212,7 @@ export default function CreateUser() {
                     <option value="">Select a branch</option>
                     {branches.map((branch) => (
                       <option key={branch._id} value={branch._id}>
-                        {branch.branch_name} - {branch.location}
+                        {branch.branch_name}
                       </option>
                     ))}
                   </select>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
-import { Search, RotateCcw, Download } from 'lucide-react';
+import { Search, RotateCcw, Download, Calendar, X, ShieldCheck } from 'lucide-react';
 import { exportTableToPDF, formatNumber } from '../utils/pdfExport';
 
 export default function HOBranchLeader() {
@@ -9,10 +9,12 @@ export default function HOBranchLeader() {
     const [positiveBranches, setPositiveBranches] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedDate, setSelectedDate] = useState('');
+    const [finalizing, setFinalizing] = useState(false);
 
     useEffect(() => {
         fetchBranchData();
-    }, []);
+    }, [selectedDate]);
 
     useEffect(() => {
         // Filter branches: Show if commission is non-zero OR has transactions
@@ -44,8 +46,7 @@ export default function HOBranchLeader() {
         if (searchTerm) {
             const lower = searchTerm.toLowerCase();
             const filterFunc = b =>
-                (b.branch_name || '').toLowerCase().includes(lower) ||
-                (b.location || '').toLowerCase().includes(lower);
+                (b.branch_name || '').toLowerCase().includes(lower);
 
             setNegativeBranches(negative.filter(filterFunc));
             setPositiveBranches(positive.filter(filterFunc));
@@ -55,10 +56,20 @@ export default function HOBranchLeader() {
         }
     }, [branches, searchTerm]);
 
+    const formatDateForAPI = (dateString) => {
+        if (!dateString) return null;
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = String(date.getFullYear()).slice(-2);
+        return `${year}-${month}-${day}`;
+    };
+
     const fetchBranchData = async () => {
         setLoading(true);
         try {
-            const res = await api.getAllBranches();
+            const dateParam = selectedDate ? formatDateForAPI(selectedDate) : null;
+            const res = await api.getAllBranches(dateParam);
             if (res.success) {
                 setBranches(res.data);
             }
@@ -66,6 +77,26 @@ export default function HOBranchLeader() {
             console.error('Error fetching branch data:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleFinalize = async () => {
+        if (!window.confirm("Are you sure you want to finalize today's commission? This will transfer all today's earnings to the COMMISSION account and reset branch daily counters.")) return;
+
+        setFinalizing(true);
+        try {
+            const res = await api.finalizeCommission();
+            if (res.success) {
+                alert(`Successfully finalized! Total commission transferred: ₹${res.data.total_commission.toLocaleString()}`);
+                fetchBranchData();
+            } else {
+                alert("Failed to finalize: " + res.message);
+            }
+        } catch (error) {
+            console.error("Finalize error:", error);
+            alert("Error finalizing commission");
+        } finally {
+            setFinalizing(false);
         }
     };
 
@@ -117,7 +148,7 @@ export default function HOBranchLeader() {
 
             return [
                 index + 1,
-                `${branch.location} (${branch.branch_name})`,
+                branch.branch_name,
                 formatNumber(openingBalance),
                 formatNumber(commission),
                 formatNumber(total)
@@ -131,7 +162,7 @@ export default function HOBranchLeader() {
 
             return [
                 index + 1,
-                `${branch.location} (${branch.branch_name})`,
+                branch.branch_name,
                 formatNumber(openingBalance),
                 formatNumber(commission),
                 formatNumber(total)
@@ -139,10 +170,10 @@ export default function HOBranchLeader() {
         });
 
         exportTableToPDF({
-            title: 'HO Branch Leader Report',
+            title: `HO Branch Leader Report - ${selectedDate || 'Today'}`,
             headers,
             data: [...negativeData, ...positiveData],
-            filename: `ho-branch-leader-${new Date().toISOString().split('T')[0]}`,
+            filename: `ho-branch-leader-${selectedDate || new Date().toISOString().split('T')[0]}`,
             footer: {
                 'Negative Branches Count': negativeBranches.length,
                 'Negative Total Commission': formatNumber(negativeTotals.commission),
@@ -185,7 +216,7 @@ export default function HOBranchLeader() {
                                 <tr key={branch._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                     <td className="px-4 py-2 text-gray-900 dark:text-white font-medium">{i + 1}</td>
                                     <td className="px-4 py-2 text-gray-900 dark:text-white">
-                                        {branch.location} <span className="text-gray-500 text-xs">({branch.branch_name})</span>
+                                        {branch.branch_name}
                                     </td>
                                     <td className={`px-4 py-2 text-right font-medium ${openingBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                                         }`}>
@@ -216,11 +247,24 @@ export default function HOBranchLeader() {
                         HO Branch Leader
                     </h1>
                     <p className="text-gray-500 dark:text-gray-400 text-xs">
-                        Branches by Opening Balance
+                        Branches by Opening Balance {selectedDate ? `- ${selectedDate}` : '(Today)'}
                     </p>
                 </div>
 
                 <div className="flex items-center gap-2">
+                    {/* Finalize Button */}
+                    {!selectedDate && (
+                        <button
+                            onClick={handleFinalize}
+                            disabled={finalizing}
+                            className="px-3 py-1.5 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-lg flex items-center gap-2 shadow text-sm disabled:opacity-50"
+                            title="Finalize Today's Commission"
+                        >
+                            <ShieldCheck className={`w-4 h-4 ${finalizing ? 'animate-pulse' : ''}`} />
+                            <span>{finalizing ? 'Finalizing...' : 'Finalize Day'}</span>
+                        </button>
+                    )}
+
                     <button
                         onClick={fetchBranchData}
                         className="p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 hover:text-blue-500"
@@ -237,7 +281,7 @@ export default function HOBranchLeader() {
                 </div>
             </div>
 
-            <div className="mb-4">
+            <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
@@ -248,9 +292,31 @@ export default function HOBranchLeader() {
                         className="w-full pl-9 pr-4 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                     />
                 </div>
+
+                {/* Date Picker */}
+                <div className="flex gap-2">
+                    <div className="relative flex-1">
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                        <input
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            className="w-full pl-9 pr-4 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                        />
+                    </div>
+                    {selectedDate && (
+                        <button
+                            onClick={() => setSelectedDate('')}
+                            className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center gap-1 text-sm"
+                        >
+                            <X className="w-3 h-3" />
+                            <span>Clear</span>
+                        </button>
+                    )}
+                </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex flex-col h-[calc(100vh-140px)]">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex flex-col h-[calc(100vh-180px)]">
                 {loading ? (
                     <div className="flex justify-center items-center h-full">
                         <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
@@ -271,21 +337,21 @@ export default function HOBranchLeader() {
                         <div className="bg-red-50 dark:bg-red-900/20 p-2">
                             <div className="grid grid-cols-4 gap-2 text-xs">
                                 <div className="text-center">
-                                    <div className="font-bold text-gray-900 dark:text-white">NEGATIVE TOTAL</div>
+                                    <div className="font-bold text-gray-900 dark:text-white uppercase">Negative</div>
                                     <div className="text-gray-500 dark:text-gray-400">
                                         {negativeTotals.count} branches
                                     </div>
                                 </div>
                                 <div className="text-center">
-                                    <div className="text-gray-500 dark:text-gray-400">Total Balance</div>
+                                    <div className="text-gray-500 dark:text-gray-400">Balance</div>
                                     <div className={`font-bold ${negativeTotals.openingBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                                         {negativeTotals.openingBalance >= 0 ? '+' : ''}{negativeTotals.openingBalance.toLocaleString()}
                                     </div>
                                 </div>
                                 <div className="text-center">
                                     <div className="text-gray-500 dark:text-gray-400">Commission</div>
-                                    <div className={`font-bold ${negativeTotals.commission >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                        {negativeTotals.commission >= 0 ? '+' : ''}{negativeTotals.commission.toLocaleString()}
+                                    <div className="font-bold text-blue-600 dark:text-blue-400">
+                                        {negativeTotals.commission.toLocaleString()}
                                     </div>
                                 </div>
                                 <div className="text-center">
@@ -301,21 +367,21 @@ export default function HOBranchLeader() {
                         <div className="bg-green-50 dark:bg-green-900/20 p-2">
                             <div className="grid grid-cols-4 gap-2 text-xs">
                                 <div className="text-center">
-                                    <div className="font-bold text-gray-900 dark:text-white">POSITIVE TOTAL</div>
+                                    <div className="font-bold text-gray-900 dark:text-white uppercase">Positive</div>
                                     <div className="text-gray-500 dark:text-gray-400">
                                         {positiveTotals.count} branches
                                     </div>
                                 </div>
                                 <div className="text-center">
-                                    <div className="text-gray-500 dark:text-gray-400">Total Balance</div>
+                                    <div className="text-gray-500 dark:text-gray-400">Balance</div>
                                     <div className={`font-bold ${positiveTotals.openingBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                                         {positiveTotals.openingBalance >= 0 ? '+' : ''}{positiveTotals.openingBalance.toLocaleString()}
                                     </div>
                                 </div>
                                 <div className="text-center">
                                     <div className="text-gray-500 dark:text-gray-400">Commission</div>
-                                    <div className={`font-bold ${positiveTotals.commission >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                        {positiveTotals.commission >= 0 ? '+' : ''}{positiveTotals.commission.toLocaleString()}
+                                    <div className="font-bold text-blue-600 dark:text-blue-400">
+                                        {positiveTotals.commission.toLocaleString()}
                                     </div>
                                 </div>
                                 <div className="text-center">

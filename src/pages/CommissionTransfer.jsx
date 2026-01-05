@@ -35,8 +35,7 @@ export default function CommissionTransfer({ onBack }) {
     };
 
     const filteredBranches = branches.filter(b =>
-        b.branch_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        b.location.toLowerCase().includes(searchTerm.toLowerCase())
+        b.branch_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     // Calculate total commission (not including today's commission)
@@ -123,14 +122,13 @@ export default function CommissionTransfer({ onBack }) {
                                 <tr>
                                     <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Sr No</th>
                                     <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Branch Name</th>
-                                    <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Location</th>
                                     <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-right">Total Commission</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                                 {filteredBranches.length > 0 ? (
                                     filteredBranches.map((branch, index) => {
-                                        const commission = branch.commission||branch.total_commission|| 0;
+                                        const commission = branch.commission || branch.total_commission || 0;
 
                                         return (
                                             <tr
@@ -141,9 +139,6 @@ export default function CommissionTransfer({ onBack }) {
                                                 <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
                                                     {branch.branch_name}
                                                 </td>
-                                                <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
-                                                    {branch.location}
-                                                </td>
                                                 <td className="px-6 py-4 text-right text-green-600 dark:text-green-400 font-semibold">
                                                     {commission.toLocaleString()}
                                                 </td>
@@ -152,7 +147,7 @@ export default function CommissionTransfer({ onBack }) {
                                     })
                                 ) : (
                                     <tr>
-                                        <td colSpan="4" className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                                        <td colSpan="3" className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                                             No branches found matching your search.
                                         </td>
                                     </tr>
