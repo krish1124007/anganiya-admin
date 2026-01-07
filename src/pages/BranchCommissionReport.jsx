@@ -196,13 +196,13 @@ export default function BranchCommissionReport() {
                             <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                         </div>
                     ) : (
-                        <table className="w-full text-sm text-left">
-                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10 shadow-sm">
+                        <table className="w-full text-xs text-left">
+                            <thead className="text-[10px] text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10 shadow-sm">
                                 <tr>
-                                    <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Sr No</th>
-                                    <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Branch Name</th>
-                                    <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-right">Today's Commission</th>
-                                    <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-right">Total Commission</th>
+                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Sr No</th>
+                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Branch Name</th>
+                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700 text-right">Today's Commission</th>
+                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700 text-right">Total Commission</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -213,14 +213,14 @@ export default function BranchCommissionReport() {
                                                 key={branch._id}
                                                 className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                                             >
-                                                <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{index + 1}</td>
-                                                <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                                                <td className="px-2 py-2 font-medium text-gray-900 dark:text-white">{index + 1}</td>
+                                                <td className="px-2 py-2 font-medium text-gray-900 dark:text-white">
                                                     {branch.branch_name}
                                                 </td>
-                                                <td className="px-6 py-4 text-right text-blue-600 dark:text-blue-400 font-semibold">
+                                                <td className="px-2 py-2 text-right text-blue-600 dark:text-blue-400 font-semibold">
                                                     {(branch.today_commission || 0).toLocaleString()}
                                                 </td>
-                                                <td className="px-6 py-4 text-right text-green-600 dark:text-green-400 font-semibold">
+                                                <td className="px-2 py-2 text-right text-green-600 dark:text-green-400 font-semibold">
                                                     {(branch.commission || 0).toLocaleString()}
                                                 </td>
                                             </tr>

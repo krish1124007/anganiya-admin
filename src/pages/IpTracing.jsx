@@ -74,34 +74,34 @@ export default function IpTracing() {
                 </div>
 
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left">
+                    <table className="w-full text-xs text-left">
                         <thead>
-                            <tr className="bg-gray-50 dark:bg-gray-700/50 text-xs uppercase text-gray-500 dark:text-gray-400">
-                                <th className="px-6 py-4 font-medium">User</th>
-                                <th className="px-6 py-4 font-medium">IP Address</th>
-                                <th className="px-6 py-4 font-medium">Device Info</th>
-                                <th className="px-6 py-4 font-medium">Timestamp</th>
+                            <tr className="bg-gray-50 dark:bg-gray-700/50 text-[10px] uppercase text-gray-500 dark:text-gray-400">
+                                <th className="px-2 py-2 font-medium">User</th>
+                                <th className="px-2 py-2 font-medium">IP Address</th>
+                                <th className="px-2 py-2 font-medium">Device Info</th>
+                                <th className="px-2 py-2 font-medium">Timestamp</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                             {filteredLogs.map((log) => (
                                 <tr key={log._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                                    <td className="px-6 py-4">
+                                    <td className="px-2 py-2">
                                         <div className="font-medium text-gray-900 dark:text-white">{log.username}</div>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-2 py-2">
                                         <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
-                                            <Globe className="w-4 h-4 text-blue-500" />
-                                            <span className="font-mono text-sm">{log.ip_address}</span>
+                                            <Globe className="w-3 h-3 text-blue-500" />
+                                            <span className="font-mono text-xs">{log.ip_address}</span>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-2 py-2">
                                         <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
                                             {getDeviceIcon(log.device_info)}
                                             <span>{log.device_info}</span>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                    <td className="px-2 py-2 text-gray-500 dark:text-gray-400">
                                         {new Date(log.timestamp).toLocaleString()}
                                     </td>
                                 </tr>

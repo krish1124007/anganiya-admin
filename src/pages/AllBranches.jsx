@@ -14,7 +14,8 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
     const [editingBranch, setEditingBranch] = useState(null);
     const [formData, setFormData] = useState({
         branch_name: '',
-        location: ''
+        location: '',
+        opening_balance: ''
     });
     const [showRelationshipModal, setShowRelationshipModal] = useState(false);
     const [relationshipForm, setRelationshipForm] = useState({
@@ -67,11 +68,12 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
         try {
             const response = await api.createBranch({
                 branch_name: formData.branch_name,
-                location: formData.location
+                location: formData.location,
+                opening_balance: Number(formData.opening_balance)
             });
             if (response.success) {
                 setShowCreateModal(false);
-                setFormData({ branch_name: '', location: '' });
+                setFormData({ branch_name: '', location: '', opening_balance: '' });
                 fetchAllData();
             }
         } catch (error) {
@@ -84,11 +86,12 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
         try {
             const response = await api.updateBranch(editingBranch._id, {
                 branch_name: formData.branch_name,
-                location: formData.location
+                location: formData.location,
+                opening_balance: Number(formData.opening_balance)
             });
             if (response.success) {
                 setEditingBranch(null);
-                setFormData({ branch_name: '', location: '' });
+                setFormData({ branch_name: '', location: '', opening_balance: '' });
                 fetchAllData();
             }
         } catch (error) {
@@ -163,7 +166,8 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
         setEditingBranch(branch);
         setFormData({
             branch_name: branch.branch_name,
-            location: branch.location
+            location: branch.location,
+            opening_balance: branch.opening_balance
         });
     };
 
@@ -362,17 +366,17 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
                             <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                         </div>
                     ) : (
-                        <table className="w-full text-sm text-left">
-                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10 shadow-sm">
+                        <table className="w-full text-xs text-left">
+                            <thead className="text-[10px] text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10 shadow-sm">
                                 <tr>
-                                    <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Sr No</th>
-                                    <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">City Name</th>
-                                    <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Status</th>
-                                    <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-right">Opening Balance</th>
-                                    <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-right">Total Commission</th>
-                                    <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-right">Total</th>
-                                    <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-right">Today's Commission</th>
-                                    <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-center">Actions</th>
+                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Sr No</th>
+                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">City Name</th>
+                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Status</th>
+                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700 text-right">Opening Balance</th>
+                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700 text-right">Total Commission</th>
+                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700 text-right">Total</th>
+                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700 text-right">Today's Commission</th>
+                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700 text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -389,13 +393,13 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
                                                 onClick={() => onBranchClick && onBranchClick(branch._id)}
                                                 className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                                             >
-                                                <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{index + 1}</td>
-                                                <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                                                <td className="px-2 py-2 font-medium text-gray-900 dark:text-white">{index + 1}</td>
+                                                <td className="px-2 py-2 font-medium text-gray-900 dark:text-white">
                                                     {branch.branch_name}
                                                 </td>
-                                                <td className="px-6 py-4">
+                                                <td className="px-2 py-2">
                                                     <span
-                                                        className={`px-3 py-1 rounded-full text-xs font-semibold ${branch.active
+                                                        className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${branch.active
                                                             ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                                                             : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
                                                             }`}
@@ -403,50 +407,50 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
                                                         {branch.active ? 'Active' : 'Inactive'}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4 text-right text-gray-900 dark:text-white">
+                                                <td className="px-2 py-2 text-right text-gray-900 dark:text-white">
                                                     {openingBalance.toLocaleString()}
                                                 </td>
-                                                <td className="px-6 py-4 text-right text-green-600 dark:text-green-400 font-medium">
+                                                <td className="px-2 py-2 text-right text-green-600 dark:text-green-400 font-medium">
                                                     {commission.toLocaleString()}
                                                 </td>
-                                                <td className="px-6 py-4 text-right font-bold text-gray-900 dark:text-white">
+                                                <td className="px-2 py-2 text-right font-bold text-gray-900 dark:text-white">
                                                     {total.toLocaleString()}
                                                 </td>
-                                                <td className="px-6 py-4 text-right text-blue-600 dark:text-blue-400 font-medium">
+                                                <td className="px-2 py-2 text-right text-blue-600 dark:text-blue-400 font-medium">
                                                     {todayCommission.toLocaleString()}
                                                 </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center justify-center gap-2">
+                                                <td className="px-2 py-2">
+                                                    <div className="flex items-center justify-center gap-1">
                                                         <button
                                                             onClick={(e) => startEdit(branch, e)}
-                                                            className="p-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
+                                                            className="p-1 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
                                                             title="Edit"
                                                         >
-                                                            <Edit2 className="w-4 h-4" />
+                                                            <Edit2 className="w-3 h-3" />
                                                         </button>
                                                         {branch.active ? (
                                                             <button
                                                                 onClick={(e) => handleDisableBranch(branch._id, e)}
-                                                                className="p-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded transition-colors"
+                                                                className="p-1 bg-orange-500 hover:bg-orange-600 text-white rounded transition-colors"
                                                                 title="Disable"
                                                             >
-                                                                <PowerOff className="w-4 h-4" />
+                                                                <PowerOff className="w-3 h-3" />
                                                             </button>
                                                         ) : (
                                                             <button
                                                                 onClick={(e) => handleEnableBranch(branch._id, e)}
-                                                                className="p-1.5 bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
+                                                                className="p-1 bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
                                                                 title="Enable"
                                                             >
-                                                                <Power className="w-4 h-4" />
+                                                                <Power className="w-3 h-3" />
                                                             </button>
                                                         )}
                                                         <button
                                                             onClick={(e) => handleDelete(branch._id, e)}
-                                                            className="p-1.5 bg-red-500 hover:bg-red-600 text-white rounded transition-colors"
+                                                            className="p-1 bg-red-500 hover:bg-red-600 text-white rounded transition-colors"
                                                             title="Delete"
                                                         >
-                                                            <Trash2 className="w-4 h-4" />
+                                                            <Trash2 className="w-3 h-3" />
                                                         </button>
                                                     </div>
                                                 </td>
@@ -500,7 +504,7 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
                                 onClick={() => {
                                     setShowCreateModal(false);
                                     setEditingBranch(null);
-                                    setFormData({ branch_name: '', location: '' });
+                                    setFormData({ branch_name: '', location: '', opening_balance: '' });
                                 }}
                                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
                             >
@@ -530,6 +534,19 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
                                     type="text"
                                     value={formData.location}
                                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                    required
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Opening Balance
+                                </label>
+                                <input
+                                    type="number"
+                                    value={formData.opening_balance}
+                                    onChange={(e) => setFormData({ ...formData, opening_balance: e.target.value })}
                                     required
                                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                 />

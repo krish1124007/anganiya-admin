@@ -386,106 +386,106 @@ export default function Transactions() {
               <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
           ) : (
-            <table className="w-full text-sm text-left">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10 shadow-sm">
+            <table className="w-full text-xs text-left">
+              <thead className="text-[10px] text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10 shadow-sm">
                 <tr>
-                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Sr No</th>
-                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Date</th>
-                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-right">Points</th>
-                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Receiver</th>
-                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Sender</th>
-                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">From</th>
-                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">To</th>
-                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Other From</th>
-                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Other To</th>
-                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700 text-right">Commission</th>
-                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Admin Approval</th>
-                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Status</th>
-                  <th className="px-6 py-3 font-medium bg-gray-50 dark:bg-gray-700">Actions</th>
+                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Sr No</th>
+                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Date</th>
+                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700 text-right">Points</th>
+                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Receiver</th>
+                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Sender</th>
+                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">From</th>
+                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">To</th>
+                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Other From</th>
+                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Other To</th>
+                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700 text-right">Commission</th>
+                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Admin Approval</th>
+                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Status</th>
+                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredTransactions.length > 0 ? (
                   filteredTransactions.map((t, index) => (
                     <tr key={t._id} className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                      <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{index + 1}</td>
-                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                      <td className="px-2 py-2 font-medium text-gray-900 dark:text-white">{index + 1}</td>
+                      <td className="px-2 py-2 text-gray-500 dark:text-gray-400 whitespace-nowrap">
                         {new Date(t.createdAt).toLocaleString()}
                       </td>
-                      <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white text-right">
+                      <td className="px-2 py-2 font-semibold text-gray-900 dark:text-white text-right">
                         {t.points.toLocaleString()}
                       </td>
-                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
+                      <td className="px-2 py-2 text-gray-500 dark:text-gray-400">
                         <div className="font-medium text-gray-900 dark:text-white">{t.receiver_name}</div>
                       </td>
-                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
+                      <td className="px-2 py-2 text-gray-500 dark:text-gray-400">
                         <div className="font-medium text-gray-900 dark:text-white">{t.sender_name}</div>
                       </td>
-                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                      <td className="px-2 py-2 text-gray-500 dark:text-gray-400">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
                           {t.sender_branch_name}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
+                      <td className="px-2 py-2 text-gray-500 dark:text-gray-400">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
                           {t.receiver_branch_name}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
+                      <td className="px-2 py-2 text-gray-500 dark:text-gray-400">
                         <div className="font-medium text-gray-900 dark:text-white">{t.other_sender}</div>
                       </td>
-                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
+                      <td className="px-2 py-2 text-gray-500 dark:text-gray-400">
                         <div className="font-medium text-gray-900 dark:text-white">{t.other_receiver}</div>
                       </td>
-                      <td className="px-6 py-4 font-medium text-green-600 dark:text-green-400 text-right">
+                      <td className="px-2 py-2 font-medium text-green-600 dark:text-green-400 text-right">
                         {t.commission.toLocaleString()}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-2 py-2">
                         {t.admin_permission ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
                             Approved
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
                             Not Approved
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-2 py-2">
                         {t.status ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
                             Complete
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
                             Pending
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-2 py-2">
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleEditTransaction(t)}
-                            className="inline-flex items-center px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-lg transition-colors"
+                            className="inline-flex items-center px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white text-[10px] font-medium rounded transition-colors"
                             title="Edit Transaction"
                           >
-                            <Edit className="w-3 h-3 mr-1.5" />
+                            <Edit className="w-3 h-3 mr-1" />
                             Edit
                           </button>
                           {!t.admin_permission && (
                             <button
                               onClick={() => handleApprove(t._id)}
                               disabled={approvingId === t._id}
-                              className="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-xs font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
+                              className="inline-flex items-center px-2 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-[10px] font-medium rounded transition-colors disabled:cursor-not-allowed"
                             >
                               {approvingId === t._id ? (
                                 <>
-                                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1.5"></div>
+                                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1"></div>
                                   Approving...
                                 </>
                               ) : (
                                 <>
-                                  <Check className="w-3 h-3 mr-1.5" />
+                                  <Check className="w-3 h-3 mr-1" />
                                   Approve
                                 </>
                               )}

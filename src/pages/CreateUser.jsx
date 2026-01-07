@@ -252,34 +252,34 @@ export default function CreateUser() {
 
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-xs text-left">
               <thead className="bg-gray-50 dark:bg-gray-700/50">
                 <tr>
-                  <th className="px-6 py-4 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Username</th>
-                  <th className="px-6 py-4 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Branch</th>
-                  <th className="px-6 py-4 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                  <th className="px-2 py-2 text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Username</th>
+                  <th className="px-2 py-2 text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Branch</th>
+                  <th className="px-2 py-2 text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {users.map((user) => (
                   <tr key={user._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                    <td className="px-6 py-4 text-gray-900 dark:text-white font-medium">{user.username}</td>
-                    <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
+                    <td className="px-2 py-2 text-gray-900 dark:text-white font-medium">{user.username}</td>
+                    <td className="px-2 py-2 text-gray-600 dark:text-gray-300">
                       {user.branch ? user.branch.branch_name : <span className="text-gray-400 italic">No Branch</span>}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-2 py-2">
                       <div className="flex space-x-2">
                         <button
                           onClick={() => startEdit(user)}
-                          className="p-2 bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 rounded-lg hover:bg-blue-200 transition-colors"
+                          className="p-1.5 bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 rounded-lg hover:bg-blue-200 transition-colors"
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <Edit2 className="w-3 h-3" />
                         </button>
                         <button
                           onClick={() => handleDeleteUser(user._id)}
-                          className="p-2 bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 rounded-lg hover:bg-red-200 transition-colors"
+                          className="p-1.5 bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 rounded-lg hover:bg-red-200 transition-colors"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3 h-3" />
                         </button>
                       </div>
                     </td>

@@ -187,23 +187,23 @@ export default function HOBranchLeader() {
     };
 
     const renderTable = (title, data, type) => (
-        <div className={`flex-1 ${type === 'negative' ? 'border-r border-gray-200 dark:border-gray-700' : ''}`}>
+        <div className={`flex-1 ${type === 'negative' ? 'border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700' : ''}`}>
             <div className="sticky top-0 bg-white dark:bg-gray-800 z-10 border-b border-gray-200 dark:border-gray-700">
-                <div className="px-6 py-3">
+                <div className="px-3 py-2">
                     <h3 className="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider">
                         {title} ({data.length})
                     </h3>
                 </div>
             </div>
             <div className="overflow-auto h-[calc(100%-50px)]">
-                <table className="w-full text-xs">
+                <table className="w-full text-[10px]">
                     <thead className="sticky top-0 bg-gray-50 dark:bg-gray-700">
                         <tr>
-                            <th className="px-4 py-2 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Sr</th>
-                            <th className="px-4 py-2 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">City Name</th>
-                            <th className="px-4 py-2 text-right font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Balance</th>
-                            <th className="px-4 py-2 text-right font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Commission</th>
-                            <th className="px-4 py-2 text-right font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</th>
+                            <th className="px-2 py-1.5 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Sr</th>
+                            <th className="px-2 py-1.5 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">City Name</th>
+                            <th className="px-2 py-1.5 text-right font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Balance</th>
+                            <th className="px-2 py-1.5 text-right font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Commission</th>
+                            <th className="px-2 py-1.5 text-right font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -214,19 +214,19 @@ export default function HOBranchLeader() {
 
                             return (
                                 <tr key={branch._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                                    <td className="px-4 py-2 text-gray-900 dark:text-white font-medium">{i + 1}</td>
-                                    <td className="px-4 py-2 text-gray-900 dark:text-white">
+                                    <td className="px-2 py-1 text-gray-900 dark:text-white font-medium">{i + 1}</td>
+                                    <td className="px-2 py-1 text-gray-900 dark:text-white">
                                         {branch.branch_name}
                                     </td>
-                                    <td className={`px-4 py-2 text-right font-medium ${openingBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                                    <td className={`px-2 py-1 text-right font-medium ${openingBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                                         }`}>
                                         {openingBalance >= 0 ? '+' : ''}{openingBalance.toLocaleString()}
                                     </td>
-                                    <td className={`px-4 py-2 text-right font-medium ${commission >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                                    <td className={`px-2 py-1 text-right font-medium ${commission >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                                         }`}>
                                         {commission >= 0 ? '+' : ''}{commission.toLocaleString()}
                                     </td>
-                                    <td className={`px-4 py-2 text-right font-bold ${total >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                                    <td className={`px-2 py-1 text-right font-bold ${total >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                                         }`}>
                                         {total >= 0 ? '+' : ''}{total.toLocaleString()}
                                     </td>
@@ -322,7 +322,7 @@ export default function HOBranchLeader() {
                         <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                     </div>
                 ) : (
-                    <div className="flex flex-1 overflow-hidden">
+                    <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
                         {/* Negative Opening Balance - Left Side */}
                         {renderTable('Negative Opening Balance', negativeBranches, 'negative')}
                         {/* Positive Opening Balance - Right Side */}
