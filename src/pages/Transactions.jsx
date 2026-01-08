@@ -410,10 +410,10 @@ export default function Transactions() {
                     <tr key={t._id} className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                       <td className="px-2 py-2 font-medium text-gray-900 dark:text-white">{index + 1}</td>
                       <td className="px-2 py-2 text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                        {new Date(t.createdAt).toLocaleString()}
+                        {new Date(t.createdAt).toLocaleString('en-IN')}
                       </td>
                       <td className="px-2 py-2 font-semibold text-gray-900 dark:text-white text-right">
-                        {t.points.toLocaleString()}
+                        {t.points.toLocaleString('en-IN')}
                       </td>
                       <td className="px-2 py-2 text-gray-500 dark:text-gray-400">
                         <div className="font-medium text-gray-900 dark:text-white">{t.receiver_name}</div>
@@ -438,7 +438,7 @@ export default function Transactions() {
                         <div className="font-medium text-gray-900 dark:text-white">{t.other_receiver}</div>
                       </td>
                       <td className="px-2 py-2 font-medium text-green-600 dark:text-green-400 text-right">
-                        {t.commission.toLocaleString()}
+                        {t.commission.toLocaleString('en-IN')}
                       </td>
                       <td className="px-2 py-2">
                         {t.admin_permission ? (
@@ -514,11 +514,11 @@ export default function Transactions() {
             <div className="flex gap-8">
               <div className="flex gap-2">
                 <span className="text-gray-500 dark:text-gray-400">Total Points:</span>
-                <span>{totals.points.toLocaleString()}</span>
+                <span>{totals.points.toLocaleString('en-IN')}</span>
               </div>
               <div className="flex gap-2">
                 <span className="text-gray-500 dark:text-gray-400">Total Commission:</span>
-                <span className="text-green-600 dark:text-green-400">{totals.commission.toLocaleString()}</span>
+                <span className="text-green-600 dark:text-green-400">{totals.commission.toLocaleString('en-IN')}</span>
               </div>
             </div>
           </div>
@@ -584,6 +584,11 @@ export default function Transactions() {
                       required
                       className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                     />
+                    {createFormData.points && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Formatted: {Number(createFormData.points).toLocaleString('en-IN')}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -596,6 +601,11 @@ export default function Transactions() {
                       required
                       className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                     />
+                    {createFormData.commission && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Formatted: {Number(createFormData.commission).toLocaleString('en-IN')}
+                      </p>
+                    )}
                   </div>
 
                   {/* Sender Details */}
@@ -719,6 +729,11 @@ export default function Transactions() {
                       required
                       className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500"
                     />
+                    {editFormData.points && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Formatted: {Number(editFormData.points).toLocaleString('en-IN')}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -731,6 +746,11 @@ export default function Transactions() {
                       required
                       className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500"
                     />
+                    {editFormData.commission && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Formatted: {Number(editFormData.commission).toLocaleString('en-IN')}
+                      </p>
+                    )}
                   </div>
 
                   {/* Sender Details */}

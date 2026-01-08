@@ -17,12 +17,9 @@ export default function HOBranchLeader() {
     }, [selectedDate]);
 
     useEffect(() => {
-        // Filter branches: Show if commission is non-zero OR has transactions
-        // Balance alone is NOT enough to show a branch
-        // Also exclude branches with 'commission' in the name
+        // Filter branches: Exclude branches with 'commission' in the name
+        // Now showing all other branches regardless of transactions or commission count
         const filteredBranches = branches.filter(b => {
-            const commission = b.commission || 0;
-            const transactionCount = b.transaction_count || { sent: 0, received: 0, total: 0 };
             const branchName = (b.branch_name || '').toLowerCase();
 
             // Exclude branches with 'commission' in the name
@@ -30,12 +27,7 @@ export default function HOBranchLeader() {
                 return false;
             }
 
-            // Show if at least ONE of these is true:
-            const hasNonZeroCommission = commission !== 0;
-            const hasTransactions = transactionCount.sent > 0 || transactionCount.received > 0;
-
-            // Balance is ignored - only commission or transactions matter
-            return hasNonZeroCommission || hasTransactions;
+            return true;
         });
 
         // Split branches based on opening balance
@@ -87,7 +79,7 @@ export default function HOBranchLeader() {
         try {
             const res = await api.finalizeCommission();
             if (res.success) {
-                alert(`Successfully finalized! Total commission transferred: ₹${res.data.total_commission.toLocaleString()}`);
+                alert(`Successfully finalized! Total commission transferred: ₹${res.data.total_commission.toLocaleString('en-IN')}`);
                 fetchBranchData();
             } else {
                 alert("Failed to finalize: " + res.message);
@@ -220,15 +212,15 @@ export default function HOBranchLeader() {
                                     </td>
                                     <td className={`px-2 py-1 text-right font-medium ${openingBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                                         }`}>
-                                        {openingBalance >= 0 ? '+' : ''}{openingBalance.toLocaleString()}
+                                        {openingBalance >= 0 ? '+' : ''}{openingBalance.toLocaleString('en-IN')}
                                     </td>
                                     <td className={`px-2 py-1 text-right font-medium ${commission >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                                         }`}>
-                                        {commission >= 0 ? '+' : ''}{commission.toLocaleString()}
+                                        {commission >= 0 ? '+' : ''}{commission.toLocaleString('en-IN')}
                                     </td>
                                     <td className={`px-2 py-1 text-right font-bold ${total >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                                         }`}>
-                                        {total >= 0 ? '+' : ''}{total.toLocaleString()}
+                                        {total >= 0 ? '+' : ''}{total.toLocaleString('en-IN')}
                                     </td>
                                 </tr>
                             );
@@ -345,19 +337,19 @@ export default function HOBranchLeader() {
                                 <div className="text-center">
                                     <div className="text-gray-500 dark:text-gray-400">Balance</div>
                                     <div className={`font-bold ${negativeTotals.openingBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                        {negativeTotals.openingBalance >= 0 ? '+' : ''}{negativeTotals.openingBalance.toLocaleString()}
+                                        {negativeTotals.openingBalance >= 0 ? '+' : ''}{negativeTotals.openingBalance.toLocaleString('en-IN')}
                                     </div>
                                 </div>
                                 <div className="text-center">
                                     <div className="text-gray-500 dark:text-gray-400">Commission</div>
                                     <div className="font-bold text-blue-600 dark:text-blue-400">
-                                        {negativeTotals.commission.toLocaleString()}
+                                        {negativeTotals.commission.toLocaleString('en-IN')}
                                     </div>
                                 </div>
                                 <div className="text-center">
                                     <div className="text-gray-500 dark:text-gray-400">Total</div>
                                     <div className={`font-bold ${negativeTotals.total >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                        {negativeTotals.total >= 0 ? '+' : ''}{negativeTotals.total.toLocaleString()}
+                                        {negativeTotals.total >= 0 ? '+' : ''}{negativeTotals.total.toLocaleString('en-IN')}
                                     </div>
                                 </div>
                             </div>
@@ -375,19 +367,19 @@ export default function HOBranchLeader() {
                                 <div className="text-center">
                                     <div className="text-gray-500 dark:text-gray-400">Balance</div>
                                     <div className={`font-bold ${positiveTotals.openingBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                        {positiveTotals.openingBalance >= 0 ? '+' : ''}{positiveTotals.openingBalance.toLocaleString()}
+                                        {positiveTotals.openingBalance >= 0 ? '+' : ''}{positiveTotals.openingBalance.toLocaleString('en-IN')}
                                     </div>
                                 </div>
                                 <div className="text-center">
                                     <div className="text-gray-500 dark:text-gray-400">Commission</div>
                                     <div className="font-bold text-blue-600 dark:text-blue-400">
-                                        {positiveTotals.commission.toLocaleString()}
+                                        {positiveTotals.commission.toLocaleString('en-IN')}
                                     </div>
                                 </div>
                                 <div className="text-center">
                                     <div className="text-gray-500 dark:text-gray-400">Total</div>
                                     <div className={`font-bold ${positiveTotals.total >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                        {positiveTotals.total >= 0 ? '+' : ''}{positiveTotals.total.toLocaleString()}
+                                        {positiveTotals.total >= 0 ? '+' : ''}{positiveTotals.total.toLocaleString('en-IN')}
                                     </div>
                                 </div>
                             </div>
@@ -399,7 +391,7 @@ export default function HOBranchLeader() {
                         <div className="flex items-center justify-center">
                             <div className="font-bold text-gray-900 dark:text-white">HO Balance:</div>
                             <div className={`ml-2 text-lg font-bold ${hoBalance === 0 ? 'text-blue-600 dark:text-blue-400' : hoBalance > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                {hoBalance >= 0 ? '+' : ''}{hoBalance.toLocaleString()}
+                                {hoBalance >= 0 ? '+' : ''}{hoBalance.toLocaleString('en-IN')}
                             </div>
                         </div>
                     </div>

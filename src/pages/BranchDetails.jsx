@@ -228,7 +228,7 @@ export default function BranchDetails({ branchId, onBack }) {
                                     ? 'text-green-600 dark:text-green-400'
                                     : 'text-red-600 dark:text-red-400'
                                     }`}>
-                                    {type === 'sent' ? '+' : '-'}{t.points.toLocaleString()}
+                                    {type === 'sent' ? '+' : '-'}{t.points.toLocaleString('en-IN')}
                                 </td>
                                 <td className="px-2 py-1 text-gray-500 dark:text-gray-300">
                                     {type === 'sent' ? t.receiver_name : t.sender_name}
@@ -237,7 +237,7 @@ export default function BranchDetails({ branchId, onBack }) {
                                     {type === 'sent' ? t.receiver_branch_name : t.sender_branch_name}
                                 </td>
                                 <td className="px-2 py-1 text-right font-medium text-green-600 dark:text-green-400">
-                                    +{(type === 'sent' ? t.sender_commision : t.receiver_commision).toLocaleString()}
+                                    +{(type === 'sent' ? t.sender_commision : t.receiver_commision).toLocaleString('en-IN')}
                                 </td>
                             </tr>
                         ))}
@@ -256,17 +256,17 @@ export default function BranchDetails({ branchId, onBack }) {
                             <div className="text-right">
                                 <p className="text-[9px] text-gray-500 uppercase font-black tracking-wider">Rec Point + Comm</p>
                                 <p className="text-base font-black text-red-600">
-                                    {(totalReceivedPoints + totalReceivedCommission).toLocaleString()}
+                                    {(totalReceivedPoints + totalReceivedCommission).toLocaleString('en-IN')}
                                 </p>
-                                <p className="text-[8px] text-gray-400">({totalReceivedPoints.toLocaleString()} + {totalReceivedCommission.toLocaleString()})</p>
+                                <p className="text-[8px] text-gray-400">({totalReceivedPoints.toLocaleString('en-IN')} + {totalReceivedCommission.toLocaleString('en-IN')})</p>
                             </div>
                         ) : (
                             <div className="text-right">
                                 <p className="text-[9px] text-gray-500 uppercase font-black tracking-wider">Sent Point + Comm</p>
                                 <p className="text-base font-black text-green-600">
-                                    {(totalSentPoints + totalSentCommission).toLocaleString()}
+                                    {(totalSentPoints + totalSentCommission).toLocaleString('en-IN')}
                                 </p>
-                                <p className="text-[8px] text-gray-400">({totalSentPoints.toLocaleString()} + {totalSentCommission.toLocaleString()})</p>
+                                <p className="text-[8px] text-gray-400">({totalSentPoints.toLocaleString('en-IN')} + {totalSentCommission.toLocaleString('en-IN')})</p>
                             </div>
                         )}
                     </div>
@@ -318,13 +318,13 @@ export default function BranchDetails({ branchId, onBack }) {
                     <div className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm">
                         <p className="text-[10px] uppercase font-bold opacity-80">Total Points</p>
                         <p className="text-xl font-black">
-                            {(totalSentPoints + totalReceivedPoints).toLocaleString()}
+                            {(totalSentPoints + totalReceivedPoints).toLocaleString('en-IN')}
                         </p>
                     </div>
                     <div className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-sm">
                         <p className="text-[10px] uppercase font-bold opacity-80">Total Commission</p>
                         <p className="text-xl font-black">
-                            {totalNetCommission.toLocaleString()}
+                            {totalNetCommission.toLocaleString('en-IN')}
                         </p>
                     </div>
                 </div> */}
@@ -333,7 +333,7 @@ export default function BranchDetails({ branchId, onBack }) {
                 <div className="w-full md:w-auto bg-white dark:bg-gray-800 border-2 border-primary-500 px-4 py-2 rounded-lg shadow-sm text-center md:text-left">
                     <p className="text-[10px] text-gray-500 uppercase font-black">Opening Balance</p>
                     <p className={`text-xl font-black ${openingBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {openingBalance.toLocaleString()}
+                        {openingBalance.toLocaleString('en-IN')}
                     </p>
                 </div>
             </div>
@@ -390,7 +390,7 @@ export default function BranchDetails({ branchId, onBack }) {
                                 <p className="text-[10px] text-gray-500 uppercase font-bold text-center border-b pb-1 mb-1">Receive Calculation</p>
                                 <div className="flex justify-between text-[11px] font-bold">
                                     <span>Points + Comm:</span>
-                                    <span className="text-red-600">{(totalReceivedPoints + totalReceivedCommission).toLocaleString()}</span>
+                                    <span className="text-red-600">{(totalReceivedPoints + totalReceivedCommission).toLocaleString('en-IN')}</span>
                                 </div>
                             </div>
                             {/* Send Calculation Box */}
@@ -398,7 +398,7 @@ export default function BranchDetails({ branchId, onBack }) {
                                 <p className="text-[10px] text-gray-500 uppercase font-bold text-center border-b pb-1 mb-1">Sent Calculation</p>
                                 <div className="flex justify-between text-[11px] font-bold">
                                     <span>Points + Comm:</span>
-                                    <span className="text-green-600">{(totalSentPoints + totalSentCommission).toLocaleString()}</span>
+                                    <span className="text-green-600">{(totalSentPoints + totalSentCommission).toLocaleString('en-IN')}</span>
                                 </div>
                             </div>
 
@@ -409,7 +409,7 @@ export default function BranchDetails({ branchId, onBack }) {
                             <div className="text-center">
                                 <p className="text-[10px] text-gray-500 uppercase font-black">before commision</p>
                                 <p className="text-2xl font-black text-blue-600">
-                                    {openingBalance.toLocaleString()}
+                                    {openingBalance.toLocaleString('en-IN')}
                                 </p>
                                 <p className="text-[9px] text-gray-400 mt-1">(opening balance)</p>
                             </div>
@@ -418,7 +418,7 @@ export default function BranchDetails({ branchId, onBack }) {
                             <div className="text-center">
                                 <p className="text-[10px] text-gray-500 uppercase font-black">after comiision</p>
                                 <p className="text-2xl font-black text-green-600">
-                                    {(openingBalance + totalNetCommission).toLocaleString()}
+                                    {(openingBalance + totalNetCommission).toLocaleString('en-IN')}
                                 </p>
                                 <p className="text-[9px] text-gray-400 mt-1">(opening balance + total comiission)</p>
                             </div>
