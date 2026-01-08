@@ -94,12 +94,38 @@ export default function BranchCommissionReport() {
         });
     };
 
-    const handleTransfer = () => {
+    const handleTransfer = async () => {
+        // Prompt for password
+        const password = prompt("Enter admin password to transfer commissions:");
+
+        if (password === null) {
+            // User cancelled
+            return;
+        }
+
+        if (password !== "admin") {
+            alert("Incorrect password!");
+            return;
+        }
+
+        // Password is correct, proceed with transfer
         setTransferLoading(true);
-        setTimeout(() => {
+        try {
+            const response = await api.transferCommissions();
+
+            if (response.success) {
+                alert(`Successfully transferred commissions!\n\nTransactions Created: ${response.data.transactions_created}\nTotal Amount: ₹${response.data.total_amount.toLocaleString('en-IN')}\nBranches Processed: ${response.data.branches_processed}`);
+                // Refresh data
+                fetchAllData();
+            } else {
+                alert(`Failed to transfer commissions: ${response.message}`);
+            }
+        } catch (error) {
+            console.error("Error transferring commissions:", error);
+            alert("Error transferring commissions. Please try again.");
+        } finally {
             setTransferLoading(false);
-            setShowTransferPage(true);
-        }, 1000);
+        }
     };
 
     // If showing transfer page, render it instead
@@ -123,7 +149,7 @@ export default function BranchCommissionReport() {
                         {transferLoading ? (
                             <>
                                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                <span>Loading...</span>
+                                <span>Transferring...</span>
                             </>
                         ) : (
                             <>

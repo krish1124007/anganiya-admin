@@ -26,6 +26,10 @@ export default function Transactions() {
     other_sender: '',
     narration: ''
   });
+  const [receiverBranchSearch, setReceiverBranchSearch] = useState('');
+  const [senderBranchSearch, setSenderBranchSearch] = useState('');
+  const [showReceiverDropdown, setShowReceiverDropdown] = useState(false);
+  const [showSenderDropdown, setShowSenderDropdown] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [editFormData, setEditFormData] = useState({
@@ -35,7 +39,6 @@ export default function Transactions() {
     sender_name: '',
     sender_mobile: '',
     commission: '',
-    other_receiver: '',
     other_receiver: '',
     other_sender: '',
     sender_branch: '',
@@ -62,6 +65,22 @@ export default function Transactions() {
 
   useEffect(() => {
     fetchTransactions();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.receiver-branch-container')) {
+        setShowReceiverDropdown(false);
+      }
+      if (!event.target.closest('.sender-branch-container')) {
+        setShowSenderDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   useEffect(() => {
@@ -175,6 +194,10 @@ export default function Transactions() {
       other_sender: '',
       narration: ''
     });
+    setReceiverBranchSearch('');
+    setSenderBranchSearch('');
+    setShowReceiverDropdown(false);
+    setShowSenderDropdown(false);
   };
 
   const handleInputChange = (e) => {
@@ -183,6 +206,38 @@ export default function Transactions() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleReceiverBranchSelect = (branchId, branchName) => {
+    setCreateFormData(prev => ({
+      ...prev,
+      receiver_branch: branchId
+    }));
+    setReceiverBranchSearch(branchName);
+    setShowReceiverDropdown(false);
+  };
+
+  const handleSenderBranchSelect = (branchId, branchName) => {
+    setCreateFormData(prev => ({
+      ...prev,
+      sender_branch: branchId
+    }));
+    setSenderBranchSearch(branchName);
+    setShowSenderDropdown(false);
+  };
+
+  const getFilteredReceiverBranches = () => {
+    if (!receiverBranchSearch) return branches;
+    return branches.filter(b =>
+      b.branch_name.toLowerCase().includes(receiverBranchSearch.toLowerCase())
+    );
+  };
+
+  const getFilteredSenderBranches = () => {
+    if (!senderBranchSearch) return branches;
+    return branches.filter(b =>
+      b.branch_name.toLowerCase().includes(senderBranchSearch.toLowerCase())
+    );
   };
 
   const handleSubmitTransaction = async (e) => {
@@ -228,7 +283,6 @@ export default function Transactions() {
       receiver_mobile: String(transaction.receiver_mobile),
       sender_name: transaction.sender_name,
       sender_mobile: String(transaction.sender_mobile),
-      commission: String(transaction.commission),
       commission: String(transaction.commission),
       other_receiver: transaction.other_receiver || '',
       other_sender: transaction.other_sender || '',
@@ -640,37 +694,75 @@ export default function Transactions() {
                   </div>
 
                   {/* 4. Receiver Branch - Fourth */}
-                  <div className="space-y-2">
+                  <div className="space-y-2 relative receiver-branch-container">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Receiver Branch</label>
-                    <select
-                      name="receiver_branch"
-                      value={createFormData.receiver_branch}
-                      onChange={handleInputChange}
-                      required
+                    <input
+                      type="text"
+                      value={receiverBranchSearch}
+                      onChange={(e) => {
+                        setReceiverBranchSearch(e.target.value);
+                        setShowReceiverDropdown(true);
+                      }}
+                      onFocus={() => setShowReceiverDropdown(true)}
+                      placeholder="Search receiver branch..."
+                      required={!createFormData.receiver_branch}
                       className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Select Receiver Branch</option>
-                      {branches.map(b => (
-                        <option key={b._id} value={b._id}>{b.branch_name}</option>
-                      ))}
-                    </select>
+                    />
+                    {showReceiverDropdown && (
+                      <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {getFilteredReceiverBranches().length > 0 ? (
+                          getFilteredReceiverBranches().map(b => (
+                            <div
+                              key={b._id}
+                              onClick={() => handleReceiverBranchSelect(b._id, b.branch_name)}
+                              className="px-4 py-2 hover:bg-blue-50 dark:hover:bg-gray-600 cursor-pointer text-gray-900 dark:text-white transition-colors"
+                            >
+                              {b.branch_name}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
+                            No branches found
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* 5. Sender Branch - Fifth */}
-                  <div className="space-y-2">
+                  <div className="space-y-2 relative sender-branch-container">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Sender Branch</label>
-                    <select
-                      name="sender_branch"
-                      value={createFormData.sender_branch}
-                      onChange={handleInputChange}
-                      required
+                    <input
+                      type="text"
+                      value={senderBranchSearch}
+                      onChange={(e) => {
+                        setSenderBranchSearch(e.target.value);
+                        setShowSenderDropdown(true);
+                      }}
+                      onFocus={() => setShowSenderDropdown(true)}
+                      placeholder="Search sender branch..."
+                      required={!createFormData.sender_branch}
                       className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Select Sender Branch</option>
-                      {branches.map(b => (
-                        <option key={b._id} value={b._id}>{b.branch_name}</option>
-                      ))}
-                    </select>
+                    />
+                    {showSenderDropdown && (
+                      <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {getFilteredSenderBranches().length > 0 ? (
+                          getFilteredSenderBranches().map(b => (
+                            <div
+                              key={b._id}
+                              onClick={() => handleSenderBranchSelect(b._id, b.branch_name)}
+                              className="px-4 py-2 hover:bg-blue-50 dark:hover:bg-gray-600 cursor-pointer text-gray-900 dark:text-white transition-colors"
+                            >
+                              {b.branch_name}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
+                            No branches found
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* 6. Sender Name - Sixth */}

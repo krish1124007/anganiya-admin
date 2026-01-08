@@ -1,5 +1,5 @@
-const API_BASE_URL = 'https://angaditya-backend.onrender.com/api/v1';
-// const API_BASE_URL = 'http://localhost:5000/api/v1';
+// const API_BASE_URL = 'https://angaditya-backend.onrender.com/api/v1';
+const API_BASE_URL = 'http://localhost:5000/api/v1';
 
 
 
@@ -273,6 +273,13 @@ export const api = {
 
   finalizeCommission: async () => {
     const response = await fetch(`${API_BASE_URL}/admin/finalize-commission`, {
+      method: 'POST',
+      headers: getAuthHeaders()
+    });
+    return response.json();
+  },
+  transferCommissions: async () => {
+    const response = await fetch(`${API_BASE_URL}/admin/transfer-commissions`, {
       method: 'POST',
       headers: getAuthHeaders()
     });
