@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
-import { Search, RotateCcw, Download, Check, Calendar, X, Plus, Edit, Trash } from 'lucide-react';
+import { Search, RotateCcw, Download, Check, Calendar, X, Plus, Edit, Trash, Copy } from 'lucide-react';
 import { decrypt_number, decrypt_text } from "../utils/decrypt";
 import { exportTableToPDF, formatNumber, formatDate } from '../utils/pdfExport';
 
@@ -23,7 +23,8 @@ export default function Transactions() {
     sender_mobile: '',
     commission: '',
     other_receiver: '',
-    other_sender: ''
+    other_sender: '',
+    narration: ''
   });
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
@@ -40,6 +41,9 @@ export default function Transactions() {
     sender_branch: '',
     receiver_branch: ''
   });
+
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     fetchBranches();
@@ -98,7 +102,7 @@ export default function Transactions() {
           other_sender: t.other_sender || '-',
         }));
         // Sort by date desc
-        decrypted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        decrypted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).reverse();
         setTransactions(decrypted);
         setFilteredTransactions(decrypted);
       }
@@ -168,7 +172,8 @@ export default function Transactions() {
       sender_mobile: '',
       commission: '',
       other_receiver: '',
-      other_sender: ''
+      other_sender: '',
+      narration: ''
     });
   };
 
@@ -195,7 +200,13 @@ export default function Transactions() {
 
       const response = await api.createTransaction(payload);
       if (response.success) {
-        alert("Transaction created successfully!");
+        const senderBranch = branches.find(b => b._id === createFormData.sender_branch)?.branch_name || '-';
+        const receiverBranch = branches.find(b => b._id === createFormData.receiver_branch)?.branch_name || '-';
+
+        const formattedMessage = `${createFormData.points} ${createFormData.receiver_mobile} ${createFormData.receiver_name} , ${receiverBranch} ${createFormData.other_receiver} ${senderBranch} ${createFormData.other_sender} , ${createFormData.sender_name} , ${createFormData.sender_mobile} ${createFormData.commission} ${createFormData.narration}`;
+
+        setSuccessMessage(formattedMessage);
+        setShowSuccessModal(true);
         handleCloseModal();
         fetchTransactions();
       } else {
@@ -262,9 +273,6 @@ export default function Transactions() {
         receiver_name: editFormData.receiver_name,
         receiver_mobile: Number(editFormData.receiver_mobile),
         sender_name: editFormData.sender_name,
-        sender_mobile: Number(editFormData.sender_mobile),
-        commission: Number(editFormData.commission),
-        other_receiver: editFormData.other_receiver,
         sender_mobile: Number(editFormData.sender_mobile),
         commission: Number(editFormData.commission),
         other_receiver: editFormData.other_receiver,
@@ -587,40 +595,7 @@ export default function Transactions() {
 
               <form onSubmit={handleSubmitTransaction} className="p-6 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Branch Selection */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Sender Branch</label>
-                    <select
-                      name="sender_branch"
-                      value={createFormData.sender_branch}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Select Sender Branch</option>
-                      {branches.map(b => (
-                        <option key={b._id} value={b._id}>{b.branch_name}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Receiver Branch</label>
-                    <select
-                      name="receiver_branch"
-                      value={createFormData.receiver_branch}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Select Receiver Branch</option>
-                      {branches.map(b => (
-                        <option key={b._id} value={b._id}>{b.branch_name}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Amount & Commission */}
+                  {/* 1. Points (Amount) - First */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Points (Amount)</label>
                     <input
@@ -638,6 +613,93 @@ export default function Transactions() {
                     )}
                   </div>
 
+                  {/* 2. Receiver Mobile - Second */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Receiver Mobile</label>
+                    <input
+                      type="number"
+                      name="receiver_mobile"
+                      value={createFormData.receiver_mobile}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* 3. Receiver Name - Third */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Receiver Name</label>
+                    <input
+                      type="text"
+                      name="receiver_name"
+                      value={createFormData.receiver_name}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* 4. Receiver Branch - Fourth */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Receiver Branch</label>
+                    <select
+                      name="receiver_branch"
+                      value={createFormData.receiver_branch}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select Receiver Branch</option>
+                      {branches.map(b => (
+                        <option key={b._id} value={b._id}>{b.branch_name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* 5. Sender Branch - Fifth */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Sender Branch</label>
+                    <select
+                      name="sender_branch"
+                      value={createFormData.sender_branch}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select Sender Branch</option>
+                      {branches.map(b => (
+                        <option key={b._id} value={b._id}>{b.branch_name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* 6. Sender Name - Sixth */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Sender Name</label>
+                    <input
+                      type="text"
+                      name="sender_name"
+                      value={createFormData.sender_name}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* 7. Sender Mobile - Seventh */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Sender Mobile</label>
+                    <input
+                      type="number"
+                      name="sender_mobile"
+                      value={createFormData.sender_mobile}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* 8. Commission - Eighth */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Commission</label>
                     <input
@@ -655,57 +717,19 @@ export default function Transactions() {
                     )}
                   </div>
 
-                  {/* Sender Details */}
+                  {/* 9. Other Receiver (Optional) - Ninth */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Sender Name</label>
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Other Receiver (Optional)</label>
                     <input
                       type="text"
-                      name="sender_name"
-                      value={createFormData.sender_name}
+                      name="other_receiver"
+                      value={createFormData.other_receiver}
                       onChange={handleInputChange}
-                      required
                       className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Sender Mobile</label>
-                    <input
-                      type="number"
-                      name="sender_mobile"
-                      value={createFormData.sender_mobile}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  {/* Receiver Details */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Receiver Name</label>
-                    <input
-                      type="text"
-                      name="receiver_name"
-                      value={createFormData.receiver_name}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Receiver Mobile</label>
-                    <input
-                      type="number"
-                      name="receiver_mobile"
-                      value={createFormData.receiver_mobile}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  {/* Other Fields */}
+                  {/* 10. Other Sender (Optional) - Tenth */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Other Sender (Optional)</label>
                     <input
@@ -717,12 +741,13 @@ export default function Transactions() {
                     />
                   </div>
 
+                  {/* 11. Narration - Last */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Other Receiver (Optional)</label>
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Narration (Optional)</label>
                     <input
                       type="text"
-                      name="other_receiver"
-                      value={createFormData.other_receiver}
+                      name="narration"
+                      value={createFormData.narration}
                       onChange={handleInputChange}
                       className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                     />
@@ -928,6 +953,55 @@ export default function Transactions() {
           </div>
         )
       }
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-lg">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-green-50 dark:bg-green-900/20 rounded-t-lg">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Transaction Created</h2>
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Transaction created successfully! Copy the details below:
+              </p>
+
+              <div className="relative">
+                <textarea
+                  className="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-mono text-sm resize-none focus:ring-2 focus:ring-green-500"
+                  readOnly
+                  value={successMessage}
+                />
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(successMessage);
+                    alert('Copied to clipboard!');
+                  }}
+                  className="absolute top-2 right-2 p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  title="Copy to clipboard"
+                >
+                  <Copy className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                </button>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <button
+                  onClick={() => setShowSuccessModal(false)}
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div >
   );
 }
