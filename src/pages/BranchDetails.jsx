@@ -12,6 +12,7 @@ export default function BranchDetails({ branchId, onBack }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [branchName, setBranchName] = useState('');
     const [openingBalance, setOpeningBalance] = useState(0);
+    const [transactionBalance, setTransactionBalance] = useState(0);
     const [selectedDate, setSelectedDate] = useState('');
 
     useEffect(() => {
@@ -76,6 +77,7 @@ export default function BranchDetails({ branchId, onBack }) {
                     const branch = branchesRes.data.find(b => String(b._id) === String(branchId));
                     if (branch) {
                         setOpeningBalance(Number(branch.opening_balance || 0));
+                        setTransactionBalance(Number(branch.transaction_balance !== undefined ? branch.transaction_balance : branch.opening_balance || 0));
                         setBranchName(branch.branch_name || '');
                     }
                 } else if (normalized.length > 0) {
@@ -409,18 +411,18 @@ export default function BranchDetails({ branchId, onBack }) {
                             <div className="text-center">
                                 <p className="text-[10px] text-gray-500 uppercase font-black">before commision</p>
                                 <p className="text-2xl font-black text-blue-600">
-                                    {openingBalance.toLocaleString('en-IN')}
+                                    {transactionBalance.toLocaleString('en-IN')}
                                 </p>
-                                <p className="text-[9px] text-gray-400 mt-1">(opening balance)</p>
+                                <p className="text-[9px] text-gray-400 mt-1">(transaction balance)</p>
                             </div>
 
                             {/* Final Balance */}
                             <div className="text-center">
                                 <p className="text-[10px] text-gray-500 uppercase font-black">after comiision</p>
                                 <p className="text-2xl font-black text-green-600">
-                                    {(openingBalance + totalNetCommission).toLocaleString('en-IN')}
+                                    {(transactionBalance + totalNetCommission).toLocaleString('en-IN')}
                                 </p>
-                                <p className="text-[9px] text-gray-400 mt-1">(opening balance + total comiission)</p>
+                                <p className="text-[9px] text-gray-400 mt-1">(transaction balance + total comiission)</p>
                             </div>
                         </div>
                     </div>

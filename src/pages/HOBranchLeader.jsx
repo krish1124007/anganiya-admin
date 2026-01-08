@@ -21,9 +21,10 @@ export default function HOBranchLeader() {
         // Now showing all branches regardless of transactions, commission count, or name
         const filteredBranches = branches;
 
-        // Split branches based on opening balance
-        const negative = filteredBranches.filter(b => (b.opening_balance || 0) < 0);
-        const positive = filteredBranches.filter(b => (b.opening_balance || 0) >= 0);
+        // Split branches based on transaction balance
+        // Fallback to 0 if undefined, though backend should guarantee a value
+        const negative = filteredBranches.filter(b => (b.transaction_balance || 0) < 0);
+        const positive = filteredBranches.filter(b => (b.transaction_balance || 0) >= 0);
 
         // Apply search filter
         if (searchTerm) {
@@ -86,7 +87,8 @@ export default function HOBranchLeader() {
     const calculateTotals = (branchList) => {
         return branchList.reduce(
             (acc, branch) => {
-                const openingBalance = branch.opening_balance || 0;
+                // Use transaction_balance instead of opening_balance
+                const openingBalance = branch.transaction_balance || 0;
                 const commission = branch.commission || 0;
                 const total = openingBalance + commission;
 
@@ -126,7 +128,7 @@ export default function HOBranchLeader() {
 
         const negativeData = negativeBranches.map((branch, index) => {
             const commission = branch.commission || 0;
-            const openingBalance = branch.opening_balance || 0;
+            const openingBalance = branch.transaction_balance || 0;
             const total = openingBalance + commission;
 
             return [
@@ -140,7 +142,7 @@ export default function HOBranchLeader() {
 
         const positiveData = positiveBranches.map((branch, index) => {
             const commission = branch.commission || 0;
-            const openingBalance = branch.opening_balance || 0;
+            const openingBalance = branch.transaction_balance || 0;
             const total = openingBalance + commission;
 
             return [
@@ -192,7 +194,7 @@ export default function HOBranchLeader() {
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                         {data.map((branch, i) => {
                             const commission = branch.commission || 0;
-                            const openingBalance = branch.opening_balance || 0;
+                            const openingBalance = branch.transaction_balance || 0;
                             const total = openingBalance + commission;
 
                             return (
