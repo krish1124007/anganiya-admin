@@ -17,18 +17,9 @@ export default function HOBranchLeader() {
     }, [selectedDate]);
 
     useEffect(() => {
-        // Filter branches: Exclude branches with 'commission' in the name
-        // Now showing all other branches regardless of transactions or commission count
-        const filteredBranches = branches.filter(b => {
-            const branchName = (b.branch_name || '').toLowerCase();
-
-            // Exclude branches with 'commission' in the name
-            if (branchName.includes('commission')) {
-                return false;
-            }
-
-            return true;
-        });
+        // Filter branches: No longer excluding 'commission' branches
+        // Now showing all branches regardless of transactions, commission count, or name
+        const filteredBranches = branches;
 
         // Split branches based on opening balance
         const negative = filteredBranches.filter(b => (b.opening_balance || 0) < 0);
