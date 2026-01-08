@@ -262,6 +262,15 @@ export const api = {
     return response.json();
   },
 
+  deleteTransaction: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/admin/delete-transaction`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ id })
+    });
+    return response.json();
+  },
+
   finalizeCommission: async () => {
     const response = await fetch(`${API_BASE_URL}/admin/finalize-commission`, {
       method: 'POST',
