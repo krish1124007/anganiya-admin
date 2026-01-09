@@ -71,7 +71,21 @@ export default function BranchDetails({ branchId, onBack }) {
                     };
                 }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-                setTransactions(normalized);
+                // ✅ FRONTEND FILTER: If no date selected, filter to show only today's transactions
+                let filteredData = normalized;
+                if (!selectedDate) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const todayEnd = new Date();
+                    todayEnd.setHours(23, 59, 59, 999);
+
+                    filteredData = normalized.filter(t => {
+                        const txDate = new Date(t.date || t.createdAt);
+                        return txDate >= today && txDate <= todayEnd;
+                    });
+                }
+
+                setTransactions(filteredData);
 
                 // Get opening balance from the branches API
                 if (branchesRes.success && branchesRes.data) {

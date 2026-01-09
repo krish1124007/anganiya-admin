@@ -120,10 +120,25 @@ export default function Transactions() {
           other_receiver: t.other_receiver || '-',
           other_sender: t.other_sender || '-',
         }));
+
+        // ✅ FRONTEND FILTER: If no date selected, filter to show only today's transactions
+        let filteredData = decrypted;
+        if (!selectedDate) {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const todayEnd = new Date();
+          todayEnd.setHours(23, 59, 59, 999);
+
+          filteredData = decrypted.filter(t => {
+            const txDate = new Date(t.date || t.createdAt);
+            return txDate >= today && txDate <= todayEnd;
+          });
+        }
+
         // Sort by date desc
-        decrypted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).reverse();
-        setTransactions(decrypted);
-        setFilteredTransactions(decrypted);
+        filteredData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).reverse();
+        setTransactions(filteredData);
+        setFilteredTransactions(filteredData);
       }
     } catch (error) {
       console.error("Error fetching transactions:", error);
@@ -242,6 +257,21 @@ export default function Transactions() {
 
   const handleSubmitTransaction = async (e) => {
     e.preventDefault();
+
+    // Validate that sender and receiver branches exist
+    const senderBranchExists = branches.find(b => b._id === createFormData.sender_branch);
+    const receiverBranchExists = branches.find(b => b._id === createFormData.receiver_branch);
+
+    if (!senderBranchExists) {
+      alert("❌ Error: Please select a valid Sender Branch from the dropdown list. The branch name you entered does not exist.");
+      return;
+    }
+
+    if (!receiverBranchExists) {
+      alert("❌ Error: Please select a valid Receiver Branch from the dropdown list. The branch name you entered does not exist.");
+      return;
+    }
+
     setLoading(true);
     try {
       // Ensure numeric values are numbers
@@ -255,8 +285,8 @@ export default function Transactions() {
 
       const response = await api.createTransaction(payload);
       if (response.success) {
-        const senderBranch = branches.find(b => b._id === createFormData.sender_branch)?.branch_name || '-';
-        const receiverBranch = branches.find(b => b._id === createFormData.receiver_branch)?.branch_name || '-';
+        const senderBranch = senderBranchExists.branch_name;
+        const receiverBranch = receiverBranchExists.branch_name;
 
         const formattedMessage = `${createFormData.points} ${createFormData.receiver_mobile} ${createFormData.receiver_name} , ${receiverBranch} ${createFormData.other_receiver} ${senderBranch} ${createFormData.other_sender} , ${createFormData.sender_name} , ${createFormData.sender_mobile} ${createFormData.commission} ${createFormData.narration}`;
 
@@ -319,6 +349,21 @@ export default function Transactions() {
 
   const handleSubmitEdit = async (e) => {
     e.preventDefault();
+
+    // Validate that sender and receiver branches exist
+    const senderBranchExists = branches.find(b => b._id === editFormData.sender_branch);
+    const receiverBranchExists = branches.find(b => b._id === editFormData.receiver_branch);
+
+    if (!senderBranchExists) {
+      alert("❌ Error: Please select a valid Sender Branch from the dropdown list. The branch name you entered does not exist.");
+      return;
+    }
+
+    if (!receiverBranchExists) {
+      alert("❌ Error: Please select a valid Receiver Branch from the dropdown list. The branch name you entered does not exist.");
+      return;
+    }
+
     setLoading(true);
     try {
       // Prepare update data - only send fields that can be updated
