@@ -36,11 +36,11 @@ export default function BranchDetails({ branchId, onBack }) {
                 String(t.receiver_commision || 0).includes(lower) ||
                 new Date(t.createdAt).toLocaleDateString().includes(lower);
 
-            setSentTransactions(sent.filter(filterFunc));
-            setReceivedTransactions(received.filter(filterFunc));
+            setSentTransactions(sent.filter(filterFunc).reverse());
+            setReceivedTransactions(received.filter(filterFunc).reverse());
         } else {
-            setSentTransactions(sent);
-            setReceivedTransactions(received);
+            setSentTransactions(sent.reverse());
+            setReceivedTransactions(received.reverse());
         }
     }, [transactions, searchTerm]);
 

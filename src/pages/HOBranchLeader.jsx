@@ -89,7 +89,7 @@ export default function HOBranchLeader() {
             (acc, branch) => {
                 // Use transaction_balance instead of opening_balance
                 const openingBalance = branch.transaction_balance || 0;
-                const commission = branch.commission || 0;
+                const commission = branch.remaining_transfer_commission || 0;
                 const total = openingBalance + commission;
 
                 acc.openingBalance += openingBalance;
@@ -193,7 +193,7 @@ export default function HOBranchLeader() {
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                         {data.map((branch, i) => {
-                            const commission = branch.commission || 0;
+                            const commission = branch.remaining_transfer_commission || 0;
                             const openingBalance = branch.transaction_balance || 0;
                             const total = openingBalance + commission;
 
