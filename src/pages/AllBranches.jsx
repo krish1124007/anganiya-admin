@@ -270,92 +270,91 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
     };
 
     return (
-        <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-full">
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Branch Management</h1>
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={handleDisableAll}
-                        className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg flex items-center space-x-2 transition-colors"
-                    >
-                        <PowerOff className="w-4 h-4" />
-                        <span>Disable All</span>
-                    </button>
-                    <button
-                        onClick={handleEnableAll}
-                        className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg flex items-center space-x-2 transition-colors"
-                    >
-                        <Power className="w-4 h-4" />
-                        <span>Enable All</span>
-                    </button>
-                    <button
-                        onClick={handleExportPDF}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center space-x-2 transition-colors"
-                    >
-                        <Download className="w-4 h-4" />
-                        <span>Download PDF</span>
-                    </button>
-                    <button
-                        onClick={() => setShowRelationshipModal(true)}
-                        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg flex items-center space-x-2 transition-colors shadow"
-                    >
-                        <Plus className="w-4 h-4" />
-                        <span>Create Relationship</span>
-                    </button>
-                    <button
-                        onClick={() => setShowCreateModal(true)}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center space-x-2 transition-colors shadow"
-                    >
-                        <Plus className="w-4 h-4" />
-                        <span>Create Branch</span>
-                    </button>
-                    <button
-                        onClick={fetchAllData}
-                        className="p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 hover:text-blue-500 transition-colors"
-                        title="Refresh"
-                    >
-                        <RotateCcw className="w-5 h-5" />
-                    </button>
-                </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex flex-col h-[calc(100vh-140px)]">
-                {/* Search Header */}
-                <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                    <div className="flex flex-col sm:flex-row gap-3">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <div className="p-4 bg-gray-50 dark:bg-gray-900 min-h-full">
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col h-[calc(100vh-90px)]">
+                {/* Single Line Header with All Controls */}
+                <div className="p-2.5 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                    <div className="flex items-center gap-2">
+                        {/* Search Bar */}
+                        <div className="relative w-48 group">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                             <input
                                 type="text"
                                 placeholder="Search branches..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                                className="w-full pl-9 pr-3 py-2 text-xs border-2 border-gray-100 dark:border-gray-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-all outline-none"
                             />
                         </div>
 
                         {/* Date Picker */}
-                        <div className="relative flex gap-2">
-                            <div className="relative">
-                                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                                <input
-                                    type="date"
-                                    value={selectedDate}
-                                    onChange={handleDateChange}
-                                    className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                                />
-                            </div>
-                            {selectedDate && (
-                                <button
-                                    onClick={handleClearDate}
-                                    className="px-3 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors flex items-center gap-1"
-                                    title="Clear date filter"
-                                >
-                                    <X className="w-4 h-4" />
-                                    <span className="hidden sm:inline">Clear</span>
-                                </button>
-                            )}
+                        <div className="relative group w-40">
+                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors pointer-events-none" />
+                            <input
+                                type="date"
+                                value={selectedDate}
+                                onChange={handleDateChange}
+                                className="w-full pl-9 pr-3 py-2 text-xs border-2 border-gray-100 dark:border-gray-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-all outline-none"
+                            />
                         </div>
+
+                        {/* Clear Date Button */}
+                        {selectedDate && (
+                            <button
+                                onClick={handleClearDate}
+                                className="px-2.5 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl transition-all"
+                                title="Clear date filter"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        )}
+
+                        {/* Spacer */}
+                        <div className="flex-1"></div>
+
+                        {/* Action Buttons */}
+                        <button
+                            onClick={handleDisableAll}
+                            className="px-2.5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg flex items-center gap-1.5 transition-colors text-xs font-semibold"
+                        >
+                            <PowerOff className="w-3.5 h-3.5" />
+                            <span className="hidden xl:inline">Disable All</span>
+                        </button>
+                        <button
+                            onClick={handleEnableAll}
+                            className="px-2.5 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg flex items-center gap-1.5 transition-colors text-xs font-semibold"
+                        >
+                            <Power className="w-3.5 h-3.5" />
+                            <span className="hidden xl:inline">Enable All</span>
+                        </button>
+                        <button
+                            onClick={handleExportPDF}
+                            className="px-2.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-1.5 transition-colors text-xs font-semibold"
+                        >
+                            <Download className="w-3.5 h-3.5" />
+                            <span className="hidden xl:inline">PDF</span>
+                        </button>
+                        <button
+                            onClick={() => setShowRelationshipModal(true)}
+                            className="px-2.5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg flex items-center gap-1.5 transition-colors text-xs font-semibold"
+                        >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span className="hidden xl:inline">Relationship</span>
+                        </button>
+                        <button
+                            onClick={() => setShowCreateModal(true)}
+                            className="px-2.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-1.5 transition-colors text-xs font-semibold"
+                        >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span className="hidden xl:inline">Branch</span>
+                        </button>
+                        <button
+                            onClick={fetchAllData}
+                            className="p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 hover:text-blue-600 hover:border-blue-500 transition-all"
+                            title="Refresh"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                        </button>
                     </div>
                 </div>
 
@@ -366,20 +365,20 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
                             <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                         </div>
                     ) : (
-                        <table className="w-full text-xs text-left">
-                            <thead className="text-[10px] text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10 shadow-sm">
+                        <table className="w-full text-2xs text-left">
+                            <thead className="table-header bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
                                 <tr>
-                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Sr No</th>
-                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">City Name</th>
-                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Status</th>
-                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700 text-right">Opening Balance</th>
-                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700 text-right">Total Commission</th>
-                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700 text-right">Total</th>
-                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700 text-right">Today's Commission</th>
-                                    <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700 text-center">Actions</th>
+                                    <th className="px-2 py-1.5 bg-gray-50 dark:bg-gray-700">Sr</th>
+                                    <th className="px-2 py-1.5 bg-gray-50 dark:bg-gray-700">City Name</th>
+                                    <th className="px-2 py-1.5 bg-gray-50 dark:bg-gray-700">Status</th>
+                                    <th className="px-2 py-1.5 bg-gray-50 dark:bg-gray-700 text-right">Opening Balance</th>
+                                    <th className="px-2 py-1.5 bg-gray-50 dark:bg-gray-700 text-right">Total Commission</th>
+                                    <th className="px-2 py-1.5 bg-gray-50 dark:bg-gray-700 text-right">Total</th>
+                                    <th className="px-2 py-1.5 bg-gray-50 dark:bg-gray-700 text-right">Today's Commission</th>
+                                    <th className="px-2 py-1.5 bg-gray-50 dark:bg-gray-700 text-center">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
                                 {filteredBranches.length > 0 ? (
                                     filteredBranches.map((branch, index) => {
                                         const openingBalance = branch.opening_balance || 0;
@@ -391,15 +390,15 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
                                             <tr
                                                 key={branch._id}
                                                 onClick={() => onBranchClick && onBranchClick(branch._id)}
-                                                className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                                                className="bg-gray-50 dark:bg-gray-700/30 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors cursor-pointer"
                                             >
-                                                <td className="px-2 py-2 font-medium text-gray-900 dark:text-white">{index + 1}</td>
-                                                <td className="px-2 py-2 font-medium text-gray-900 dark:text-white">
+                                                <td className="px-2 py-1.5 text-2xs font-medium text-gray-500 dark:text-gray-400">{index + 1}</td>
+                                                <td className="px-2 py-1.5 text-2xs font-semibold text-gray-900 dark:text-white">
                                                     {branch.branch_name}
                                                 </td>
-                                                <td className="px-2 py-2">
+                                                <td className="px-2 py-1.5">
                                                     <span
-                                                        className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${branch.active
+                                                        className={`px-1.5 py-0.5 rounded-full text-[9px] font-semibold ${branch.active
                                                             ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                                                             : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
                                                             }`}
@@ -407,19 +406,19 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
                                                         {branch.active ? 'Active' : 'Inactive'}
                                                     </span>
                                                 </td>
-                                                <td className="px-2 py-2 text-right text-gray-900 dark:text-white">
+                                                <td className="px-2 py-1.5 text-right text-2xs text-gray-900 dark:text-white numeric">
                                                     {openingBalance.toLocaleString('en-IN')}
                                                 </td>
-                                                <td className="px-2 py-2 text-right text-green-600 dark:text-green-400 font-medium">
+                                                <td className="px-2 py-1.5 text-right text-2xs text-green-600 dark:text-green-400 font-medium numeric">
                                                     {commission.toLocaleString('en-IN')}
                                                 </td>
-                                                <td className="px-2 py-2 text-right font-bold text-gray-900 dark:text-white">
+                                                <td className="px-2 py-1.5 text-right text-2xs font-bold text-gray-900 dark:text-white numeric">
                                                     {total.toLocaleString('en-IN')}
                                                 </td>
-                                                <td className="px-2 py-2 text-right text-blue-600 dark:text-blue-400 font-medium">
+                                                <td className="px-2 py-1.5 text-right text-2xs text-blue-600 dark:text-blue-400 font-medium numeric">
                                                     {todayCommission.toLocaleString('en-IN')}
                                                 </td>
-                                                <td className="px-2 py-2">
+                                                <td className="px-2 py-1.5">
                                                     <div className="flex items-center justify-center gap-1">
                                                         <button
                                                             onClick={(e) => startEdit(branch, e)}
@@ -470,23 +469,23 @@ export default function AllBranches({ onBranchClick, initialSearch = '' }) {
                 </div>
 
                 {/* Footer Totals */}
-                <div className="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-4">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm font-bold text-gray-900 dark:text-white">
+                <div className="bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 px-3 py-2">
+                    <div className="grid grid-cols-4 gap-3 text-2xs">
                         <div className="flex flex-col">
-                            <span className="text-gray-500 dark:text-gray-400 text-xs uppercase">Opening Balance</span>
-                            <span>{footerTotals.openingBalance.toLocaleString('en-IN')}</span>
+                            <span className="font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Opening Balance</span>
+                            <span className="text-xs font-bold text-gray-900 dark:text-white numeric mt-0.5">{footerTotals.openingBalance.toLocaleString('en-IN')}</span>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-gray-500 dark:text-gray-400 text-xs uppercase">Total Commission</span>
-                            <span className="text-green-600 dark:text-green-400">{footerTotals.commission.toLocaleString('en-IN')}</span>
+                            <span className="font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Total Commission</span>
+                            <span className="text-xs font-bold text-green-600 dark:text-green-400 numeric mt-0.5">{footerTotals.commission.toLocaleString('en-IN')}</span>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-gray-500 dark:text-gray-400 text-xs uppercase">Total</span>
-                            <span>{footerTotals.total.toLocaleString('en-IN')}</span>
+                            <span className="font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Total</span>
+                            <span className="text-xs font-bold text-gray-900 dark:text-white numeric mt-0.5">{footerTotals.total.toLocaleString('en-IN')}</span>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-gray-500 dark:text-gray-400 text-xs uppercase">Today's Commission</span>
-                            <span className="text-blue-600 dark:text-blue-400">{footerTotals.todayCommission.toLocaleString('en-IN')}</span>
+                            <span className="font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Today's Commission</span>
+                            <span className="text-xs font-bold text-blue-600 dark:text-blue-400 numeric mt-0.5">{footerTotals.todayCommission.toLocaleString('en-IN')}</span>
                         </div>
                     </div>
                 </div>

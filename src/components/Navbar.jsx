@@ -58,30 +58,30 @@ export default function Navbar({ currentPage, setCurrentPage }) {
 
     return (
         <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16">
+            <div className="w-full px-3">
+                <div className="flex items-center justify-between h-14">
                     {/* Logo & Desktop Nav */}
-                    <div className="flex items-center">
+                    <div className="flex items-center gap-6">
                         <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer" onClick={() => setCurrentPage('transactions')}>
-                            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                                <Building2 className="w-5 h-5 text-white" />
+                            <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
+                                <Building2 className="w-4 h-4 text-white" />
                             </div>
-                            <span className="font-bold text-xl text-gray-900 dark:text-white">Angadia Admin</span>
+                            <span className="font-bold text-lg text-gray-900 dark:text-white">Angadia Admin</span>
                         </div>
 
-                        <div className="hidden md:block ml-10">
-                            <div className="flex items-baseline space-x-4">
+                        <div className="hidden md:block">
+                            <div className="flex items-center gap-1.5">
                                 {navItems.map((item) => (
                                     <button
                                         key={item.id}
                                         onClick={() => setCurrentPage(item.id)}
-                                        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center gap-2 ${currentPage === item.id
-                                            ? 'bg-blue-600 text-white'
-                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                        className={`px-2.5 py-1.5 rounded-md text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${currentPage === item.id
+                                                ? 'bg-blue-600 text-white shadow-sm'
+                                                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                             }`}
                                     >
-                                        <item.icon className="w-4 h-4" />
-                                        {item.label}
+                                        <item.icon className="w-3.5 h-3.5" />
+                                        <span className="hidden lg:inline">{item.label}</span>
                                     </button>
                                 ))}
                             </div>
@@ -89,24 +89,25 @@ export default function Navbar({ currentPage, setCurrentPage }) {
                     </div>
 
                     {/* Right Side Actions */}
-                    <div className="hidden md:flex items-center gap-4 ml-auto">
+                    <div className="hidden md:flex items-center gap-2">
                         <button
                             onClick={toggleTheme}
-                            className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                            className="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            title="Toggle theme"
                         >
-                            {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                            {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                         </button>
 
                         {/* Notification Bell */}
                         <div className="relative" ref={notificationRef}>
                             <button
                                 onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                                className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 relative"
+                                className="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 relative transition-colors"
                                 title="Notifications"
                             >
-                                <Bell className="w-5 h-5" />
+                                <Bell className="w-4 h-4" />
                                 {notificationCount > 0 && (
-                                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                                         {notificationCount > 9 ? '9+' : notificationCount}
                                     </span>
                                 )}
@@ -159,17 +160,17 @@ export default function Navbar({ currentPage, setCurrentPage }) {
                             )}
                         </div>
 
-                        <div className="flex items-center gap-3 pl-4 border-l border-gray-200 dark:border-gray-700">
-                            <div className="text-sm text-right hidden lg:block">
-                                <p className="font-medium text-gray-900 dark:text-white">{user?.username}</p>
-                                <p className="text-xs text-gray-500">Admin</p>
+                        <div className="flex items-center gap-2 pl-3 border-l border-gray-200 dark:border-gray-700">
+                            <div className="text-xs text-right hidden lg:block">
+                                <p className="font-semibold text-gray-900 dark:text-white">{user?.username}</p>
+                                <p className="text-[10px] text-gray-500 dark:text-gray-400">Admin</p>
                             </div>
                             <button
                                 onClick={logout}
-                                className="p-2 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                                 title="Logout"
                             >
-                                <LogOut className="w-5 h-5" />
+                                <LogOut className="w-4 h-4" />
                             </button>
                         </div>
                     </div>

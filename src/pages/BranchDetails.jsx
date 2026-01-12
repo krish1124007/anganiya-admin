@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { decrypt_number, decrypt_text } from '../utils/decrypt';
-import { Search, ArrowLeft, RotateCcw, Download } from 'lucide-react';
+import { Search, ArrowLeft, RotateCcw, Download, Calendar, X } from 'lucide-react';
 import { exportTableToPDF, formatNumber, formatDate } from '../utils/pdfExport';
 
 export default function BranchDetails({ branchId, onBack }) {
@@ -213,48 +213,48 @@ export default function BranchDetails({ branchId, onBack }) {
     const renderTable = (title, data, type) => (
         <div className={`flex-1 ${type === 'received' ? 'border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700' : ''}`}>
             <div className="sticky top-0 bg-white dark:bg-gray-800 z-10 border-b border-gray-200 dark:border-gray-700">
-                <div className="px-3 py-2">
-                    <h3 className="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider">
+                <div className="px-3 py-1.5 bg-gray-50 dark:bg-gray-700">
+                    <h3 className="text-2xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                         {title} ({data.length})
                     </h3>
                 </div>
             </div>
             <div className="overflow-auto h-[calc(100%-80px)]">
-                <table className="w-full text-[10px]">
-                    <thead className="sticky top-0 bg-gray-50 dark:bg-gray-700">
+                <table className="w-full text-2xs text-left">
+                    <thead className="table-header bg-gray-50 dark:bg-gray-700 sticky top-0">
                         <tr>
-                            <th className="px-2 py-1.5 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">#</th>
-                            <th className="px-2 py-1.5 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
-                            <th className="px-2 py-1.5 text-right font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Points</th>
-                            <th className="px-2 py-1.5 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            <th className="px-2 py-1.5 text-left">#</th>
+                            <th className="px-2 py-1.5 text-left">Date</th>
+                            <th className="px-2 py-1.5 text-right">Points</th>
+                            <th className="px-2 py-1.5 text-left">
                                 {type === 'sent' ? 'Receiver' : 'Sender'}
                             </th>
-                            <th className="px-2 py-1.5 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            <th className="px-2 py-1.5 text-left">
                                 {type === 'sent' ? 'To Branch' : 'From Branch'}
                             </th>
-                            <th className="px-2 py-1.5 text-right font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Commission</th>
+                            <th className="px-2 py-1.5 text-right">Commission</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                         {data.map((t, i) => (
-                            <tr key={`${type}-${t._id}`} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                                <td className="px-2 py-1 text-gray-900 dark:text-white font-medium">{i + 1}</td>
-                                <td className="px-2 py-1 text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                            <tr key={`${type}-${t._id}`} className="bg-gray-50 dark:bg-gray-700/30 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
+                                <td className="px-2 py-1 text-2xs table-cell text-gray-500 dark:text-gray-400">{i + 1}</td>
+                                <td className="px-2 py-1 text-2xs table-cell text-gray-500 dark:text-gray-400 whitespace-nowrap">
                                     {new Date(t.createdAt).toLocaleDateString()} {new Date(t.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </td>
-                                <td className={`px-2 py-1 text-right font-medium ${type === 'sent'
+                                <td className={`px-2 py-1 text-right text-2xs font-semibold numeric ${type === 'sent'
                                     ? 'text-green-600 dark:text-green-400'
                                     : 'text-red-600 dark:text-red-400'
                                     }`}>
                                     {type === 'sent' ? '+' : '-'}{t.points.toLocaleString('en-IN')}
                                 </td>
-                                <td className="px-2 py-1 text-gray-500 dark:text-gray-300">
+                                <td className="px-2 py-1 text-2xs table-cell text-gray-500 dark:text-gray-300">
                                     {type === 'sent' ? t.receiver_name : t.sender_name}
                                 </td>
-                                <td className="px-2 py-1 text-gray-500 dark:text-gray-300">
+                                <td className="px-2 py-1 text-2xs table-cell text-gray-500 dark:text-gray-300">
                                     {type === 'sent' ? t.receiver_branch_name : t.sender_branch_name}
                                 </td>
-                                <td className="px-2 py-1 text-right font-medium text-green-600 dark:text-green-400">
+                                <td className="px-2 py-1 text-right text-2xs font-semibold text-green-600 dark:text-green-400 numeric">
                                     +{(type === 'sent' ? t.sender_commision : t.receiver_commision).toLocaleString('en-IN')}
                                 </td>
                             </tr>
@@ -264,27 +264,27 @@ export default function BranchDetails({ branchId, onBack }) {
             </div>
 
             {/* In-table Summary Footer (Numerical Calculations) */}
-            <div className="bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700 p-2">
+            <div className="bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 px-3 py-1.5">
                 <div className="flex items-center justify-between text-gray-900 dark:text-white">
                     <div>
-                        <p className="text-[10px] text-gray-500 font-bold">{data.length} Record(s)</p>
+                        <p className="text-2xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">{data.length} Record(s)</p>
                     </div>
                     <div className="flex gap-4">
                         {type === 'received' ? (
                             <div className="text-right">
-                                <p className="text-[9px] text-gray-500 uppercase font-black tracking-wider">Rec Point + Comm</p>
-                                <p className="text-base font-black text-red-600">
+                                <p className="text-2xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Rec Point + Comm</p>
+                                <p className="text-xs font-bold text-red-600 numeric">
                                     {(totalReceivedPoints + totalReceivedCommission).toLocaleString('en-IN')}
                                 </p>
-                                <p className="text-[8px] text-gray-400">({totalReceivedPoints.toLocaleString('en-IN')} + {totalReceivedCommission.toLocaleString('en-IN')})</p>
+                                <p className="text-[9px] text-gray-400">({totalReceivedPoints.toLocaleString('en-IN')} + {totalReceivedCommission.toLocaleString('en-IN')})</p>
                             </div>
                         ) : (
                             <div className="text-right">
-                                <p className="text-[9px] text-gray-500 uppercase font-black tracking-wider">Sent Point + Comm</p>
-                                <p className="text-base font-black text-green-600">
+                                <p className="text-2xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Sent Point + Comm</p>
+                                <p className="text-xs font-bold text-green-600 numeric">
                                     {(totalSentPoints + totalSentCommission).toLocaleString('en-IN')}
                                 </p>
-                                <p className="text-[8px] text-gray-400">({totalSentPoints.toLocaleString('en-IN')} + {totalSentCommission.toLocaleString('en-IN')})</p>
+                                <p className="text-[9px] text-gray-400">({totalSentPoints.toLocaleString('en-IN')} + {totalSentCommission.toLocaleString('en-IN')})</p>
                             </div>
                         )}
                     </div>
@@ -294,151 +294,143 @@ export default function BranchDetails({ branchId, onBack }) {
     );
 
     return (
-        <div className="p-2 md:p-4 bg-gray-50 dark:bg-gray-900 min-h-full">
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={onBack}
-                        className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                    >
-                        <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                    </button>
-                    <div>
-                        <h1 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white">
-                            {branchName || 'Branch Transactions'}
-                        </h1>
-                        <p className="text-gray-500 dark:text-gray-400 text-xs">
-                            Transaction History
-                        </p>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={fetchBranchData}
-                        className="p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 hover:text-blue-500"
-                    >
-                        <RotateCcw className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={handleExportPDF}
-                        className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2 shadow text-sm"
-                    >
-                        <Download className="w-3 h-3" />
-                        <span className="hidden md:inline">Export PDF</span>
-                    </button>
-                </div>
-            </div>
-
-            <div className="mb-4 flex flex-col md:flex-row items-center justify-between gap-4">
-                {/* Left Side Boxes: Total Points & Total Commission */}
-                {/* <div className="flex gap-3">
-                    <div className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm">
-                        <p className="text-[10px] uppercase font-bold opacity-80">Total Points</p>
-                        <p className="text-xl font-black">
-                            {(totalSentPoints + totalReceivedPoints).toLocaleString('en-IN')}
-                        </p>
-                    </div>
-                    <div className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-sm">
-                        <p className="text-[10px] uppercase font-bold opacity-80">Total Commission</p>
-                        <p className="text-xl font-black">
-                            {totalNetCommission.toLocaleString('en-IN')}
-                        </p>
-                    </div>
-                </div> */}
-
-                {/* Right Side Box: Opening Balance */}
-                <div className="w-full md:w-auto bg-white dark:bg-gray-800 border-2 border-primary-500 px-4 py-2 rounded-lg shadow-sm text-center md:text-left">
-                    <p className="text-[10px] text-gray-500 uppercase font-black">Opening Balance</p>
-                    <p className={`text-xl font-black ${openingBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {openingBalance.toLocaleString('en-IN')}
-                    </p>
-                </div>
-            </div>
-
-            {/* Search and Date Row */}
-            <div className="mb-4 flex flex-col md:flex-row gap-3">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                        placeholder="Search transactions..."
-                        className="w-full pl-9 pr-4 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                    />
-                </div>
-                <div className="flex gap-2">
-                    <input
-                        type="date"
-                        value={selectedDate}
-                        onChange={e => setSelectedDate(e.target.value)}
-                        className="flex-1 md:flex-none px-4 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                    />
-                    {selectedDate && (
+        <div className="p-4 bg-gray-50 dark:bg-gray-900 min-h-full">
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col h-[calc(100vh-90px)]">
+                {/* Single Line Header with All Controls */}
+                <div className="p-2.5 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                    <div className="flex items-center gap-2">
+                        {/* Back Button */}
                         <button
-                            onClick={() => setSelectedDate('')}
-                            className="px-3 py-1.5 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 rounded-lg text-sm font-medium transition-colors"
+                            onClick={onBack}
+                            className="p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 hover:text-blue-600 hover:border-blue-500 transition-all"
+                            title="Back"
                         >
-                            Reset
+                            <ArrowLeft className="w-4 h-4" />
                         </button>
-                    )}
+
+                        {/* Branch Title */}
+                        <div className="flex flex-col">
+                            <h1 className="text-sm font-bold text-gray-900 dark:text-white">{branchName || 'Branch Transactions'}</h1>
+                            <p className="text-2xs text-gray-500 dark:text-gray-400">Transaction History</p>
+                        </div>
+
+                        {/* Search Bar */}
+                        <div className="relative w-48 group ml-4">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                placeholder="Search transactions..."
+                                className="w-full pl-9 pr-3 py-2 text-xs border-2 border-gray-100 dark:border-gray-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-all outline-none"
+                            />
+                        </div>
+
+                        {/* Date Picker */}
+                        <div className="relative group w-40">
+                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors pointer-events-none" />
+                            <input
+                                type="date"
+                                value={selectedDate}
+                                onChange={e => setSelectedDate(e.target.value)}
+                                className="w-full pl-9 pr-3 py-2 text-xs border-2 border-gray-100 dark:border-gray-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-all outline-none"
+                            />
+                        </div>
+
+                        {/* Clear Date */}
+                        {selectedDate && (
+                            <button
+                                onClick={() => setSelectedDate('')}
+                                className="px-2.5 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl transition-all"
+                                title="Clear date"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        )}
+
+                        {/* Opening Balance Badge */}
+                        <div className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                            <span className="text-2xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Opening Balance</span>
+                            <span className={`ml-2 text-xs font-bold numeric ${openingBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {openingBalance.toLocaleString('en-IN')}
+                            </span>
+                        </div>
+
+                        {/* Spacer */}
+                        <div className="flex-1"></div>
+
+                        {/* Action Buttons */}
+                        <button
+                            onClick={fetchBranchData}
+                            className="p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 hover:text-blue-600 hover:border-blue-500 transition-all"
+                            title="Refresh"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={handleExportPDF}
+                            className="px-2.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-1.5 transition-all text-xs font-semibold"
+                        >
+                            <Download className="w-3.5 h-3.5" />
+                            <span className="hidden xl:inline">Export PDF</span>
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex flex-col h-[calc(100vh-140px)]">
-                {loading ? (
-                    <div className="flex justify-center items-center h-full">
-                        <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                    </div>
-                ) : (
-                    <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
-                        {/* Received transactions first */}
-                        {renderTable('Received Transactions', receivedTransactions, 'received')}
-                        {renderTable('Sent Transactions', sentTransactions, 'sent')}
-                    </div>
-                )}
+                <div className="bg-white dark:bg-gray-800 flex flex-col flex-1 overflow-hidden">
+                    {loading ? (
+                        <div className="flex justify-center items-center h-full">
+                            <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                        </div>
+                    ) : (
+                        <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+                            {/* Received transactions first */}
+                            {renderTable('Received Transactions', receivedTransactions, 'received')}
+                            {renderTable('Sent Transactions', sentTransactions, 'sent')}
+                        </div>
+                    )}
 
-                <div className="border-t-2 border-gray-300 dark:border-gray-600">
-                    <div className="bg-gray-200 dark:bg-gray-800 p-2 md:p-4">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 items-center">
+                    <div className="border-t-2 border-gray-300 dark:border-gray-600">
+                        <div className="bg-gray-200 dark:bg-gray-800 p-2 md:p-4">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 items-center">
 
-                            {/* Receive Calculation Box */}
-                            <div className="bg-white dark:bg-gray-700 p-2 rounded border border-gray-300 dark:border-gray-600">
-                                <p className="text-[10px] text-gray-500 uppercase font-bold text-center border-b pb-1 mb-1">Receive Calculation</p>
-                                <div className="flex justify-between text-[11px] font-bold">
-                                    <span>Points + Comm:</span>
-                                    <span className="text-red-600">{(totalReceivedPoints + totalReceivedCommission).toLocaleString('en-IN')}</span>
+                                {/* Receive Calculation Box */}
+                                <div className="bg-white dark:bg-gray-700 p-2.5 rounded border border-gray-300 dark:border-gray-600">
+                                    <p className="text-2xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 text-center border-b pb-1 mb-1">Receive Calculation</p>
+                                    <div className="flex justify-between text-2xs font-bold">
+                                        <span>Points + Comm:</span>
+                                        <span className="text-red-600 numeric">{(totalReceivedPoints + totalReceivedCommission).toLocaleString('en-IN')}</span>
+                                    </div>
                                 </div>
-                            </div>
-                            {/* Send Calculation Box */}
-                            <div className="bg-white dark:bg-gray-700 p-2 rounded border border-gray-300 dark:border-gray-600">
-                                <p className="text-[10px] text-gray-500 uppercase font-bold text-center border-b pb-1 mb-1">Sent Calculation</p>
-                                <div className="flex justify-between text-[11px] font-bold">
-                                    <span>Points + Comm:</span>
-                                    <span className="text-green-600">{(totalSentPoints + totalSentCommission).toLocaleString('en-IN')}</span>
+                                {/* Send Calculation Box */}
+                                <div className="bg-white dark:bg-gray-700 p-2.5 rounded border border-gray-300 dark:border-gray-600">
+                                    <p className="text-2xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 text-center border-b pb-1 mb-1">Sent Calculation</p>
+                                    <div className="flex justify-between text-2xs font-bold">
+                                        <span>Points + Comm:</span>
+                                        <span className="text-green-600 numeric">{(totalSentPoints + totalSentCommission).toLocaleString('en-IN')}</span>
+                                    </div>
                                 </div>
-                            </div>
 
 
 
 
-                            {/* Bal Before Comm */}
-                            <div className="text-center">
-                                <p className="text-[10px] text-gray-500 uppercase font-black">before commision</p>
-                                <p className="text-2xl font-black text-blue-600">
-                                    {transactionBalance.toLocaleString('en-IN')}
-                                </p>
-                                <p className="text-[9px] text-gray-400 mt-1">(transaction balance)</p>
-                            </div>
+                                {/* Bal Before Comm */}
+                                <div className="text-center">
+                                    <p className="text-2xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">before commission</p>
+                                    <p className="text-xs md:text-sm font-bold text-blue-600 mt-0.5 numeric">
+                                        {transactionBalance.toLocaleString('en-IN')}
+                                    </p>
+                                    <p className="text-[9px] text-gray-400 mt-0.5">(transaction balance)</p>
+                                </div>
 
-                            {/* Final Balance */}
-                            <div className="text-center">
-                                <p className="text-[10px] text-gray-500 uppercase font-black">after comiision</p>
-                                <p className="text-2xl font-black text-green-600">
-                                    {(transactionBalance + remainingTransferCommission).toLocaleString('en-IN')}
-                                </p>
-                                <p className="text-[9px] text-gray-400 mt-1">(transaction balance + remaining transfer commission)</p>
+                                {/* Final Balance */}
+                                <div className="text-center">
+                                    <p className="text-2xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">after commission</p>
+                                    <p className="text-xs md:text-sm font-bold text-green-600 mt-0.5 numeric">
+                                        {(transactionBalance + remainingTransferCommission).toLocaleString('en-IN')}
+                                    </p>
+                                    <p className="text-[9px] text-gray-400 mt-0.5">(transaction balance + remaining transfer commission)</p>
+                                </div>
                             </div>
                         </div>
                     </div>

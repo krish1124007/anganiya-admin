@@ -131,84 +131,84 @@ export default function BranchCommissionReport() {
     }
 
     return (
-        <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-full">
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Branch Commission Report</h1>
-                    <p className="text-gray-600 dark:text-gray-400 mt-1">View commission overview for all branches</p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={handleTransfer}
-                        disabled={transferLoading}
-                        className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg flex items-center space-x-2 transition-colors shadow disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {transferLoading ? (
-                            <>
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                <span>Transferring...</span>
-                            </>
-                        ) : (
-                            <>
-                                <ArrowRight className="w-4 h-4" />
-                                <span>Transfer</span>
-                            </>
-                        )}
-                    </button>
-                    <button
-                        onClick={handleExportPDF}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center space-x-2 transition-colors shadow"
-                    >
-                        <Download className="w-4 h-4" />
-                        <span>Download PDF</span>
-                    </button>
-                    <button
-                        onClick={fetchAllData}
-                        className="p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 hover:text-blue-500 transition-colors"
-                        title="Refresh"
-                    >
-                        <RotateCcw className="w-5 h-5" />
-                    </button>
-                </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col h-[calc(100vh-200px)] overflow-hidden">
-                {/* Search Header */}
-                <div className="p-4 border-b border-gray-100 dark:border-gray-700/50 bg-gray-50/30 dark:bg-gray-800/50">
-                    <div className="flex flex-col sm:flex-row gap-4 max-w-7xl mx-auto">
-                        <div className="relative flex-1 group">
-                            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+        <div className="p-4 bg-gray-50 dark:bg-gray-900 min-h-full">
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col h-[calc(100vh-90px)] overflow-hidden">
+                {/* Single Line Header with All Controls */}
+                <div className="p-2.5 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                    <div className="flex items-center gap-2">
+                        {/* Search Bar */}
+                        <div className="relative w-52 group">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                             <input
                                 type="text"
                                 placeholder="Search branches..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3 border-2 border-gray-100 dark:border-gray-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-all outline-none font-medium"
+                                className="w-full pl-9 pr-3 py-2 text-xs border-2 border-gray-100 dark:border-gray-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-all outline-none"
                             />
                         </div>
 
                         {/* Date Picker */}
-                        <div className="relative flex gap-2">
-                            <div className="relative group">
-                                <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors pointer-events-none" />
-                                <input
-                                    type="date"
-                                    value={selectedDate}
-                                    onChange={handleDateChange}
-                                    className="pl-12 pr-4 py-3 border-2 border-gray-100 dark:border-gray-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-all outline-none font-medium"
-                                />
-                            </div>
-                            {selectedDate && (
-                                <button
-                                    onClick={handleClearDate}
-                                    className="px-4 py-3 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl transition-all flex items-center gap-2 font-bold"
-                                    title="Clear date filter"
-                                >
-                                    <X className="w-5 h-5" />
-                                    <span className="hidden sm:inline">Clear</span>
-                                </button>
-                            )}
+                        <div className="relative group w-40">
+                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors pointer-events-none" />
+                            <input
+                                type="date"
+                                value={selectedDate}
+                                onChange={handleDateChange}
+                                className="w-full pl-9 pr-3 py-2 text-xs border-2 border-gray-100 dark:border-gray-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-all outline-none"
+                            />
                         </div>
+
+                        {/* Clear Date Button */}
+                        {selectedDate && (
+                            <button
+                                onClick={handleClearDate}
+                                className="px-2.5 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl transition-all"
+                                title="Clear date filter"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        )}
+
+                        {/* Spacer */}
+                        <div className="flex-1"></div>
+
+                        {/* Transfer Button */}
+                        <button
+                            onClick={handleTransfer}
+                            disabled={transferLoading}
+                            className="px-3 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg flex items-center gap-1.5 transition-colors shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-xs font-semibold"
+                        >
+                            {transferLoading ? (
+                                <>
+                                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    <span>Transferring...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <ArrowRight className="w-3.5 h-3.5" />
+                                    <span>Transfer</span>
+                                </>
+                            )}
+                        </button>
+
+                        {/* Download PDF Button */}
+                        <button
+                            onClick={handleExportPDF}
+                            className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-1.5 transition-all shadow-md hover:shadow-lg text-xs font-semibold"
+                        >
+                            <Download className="w-3.5 h-3.5" />
+                            <span>Download PDF</span>
+                        </button>
+
+                        {/* Refresh Button */}
+                        <button
+                            onClick={fetchAllData}
+                            className="p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 hover:text-blue-600 hover:border-blue-500 transition-all"
+                            title="Refresh"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                        </button>
                     </div>
                 </div>
 
@@ -219,13 +219,13 @@ export default function BranchCommissionReport() {
                             <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                         </div>
                     ) : (
-                        <div className="max-w-4xl mx-auto w-full px-4 py-4">
-                            <table className="w-full text-sm text-left border-separate border-spacing-y-2">
-                                <thead className="text-xs text-gray-500 uppercase tracking-widest">
+                        <div className="w-full px-3 py-3">
+                            <table className="w-full text-left border-separate border-spacing-y-1">
+                                <thead className="table-header">
                                     <tr>
-                                        <th className="px-4 py-2 font-bold w-20">No.</th>
-                                        <th className="px-4 py-2 font-bold">Branch Name</th>
-                                        <th className="px-4 py-2 font-bold text-right">Commission</th>
+                                        <th className="px-3 py-1.5 w-14 text-2xs">No.</th>
+                                        <th className="px-3 py-1.5 text-2xs">Branch Name</th>
+                                        <th className="px-3 py-1.5 text-right text-2xs">Commission</th>
                                     </tr>
                                 </thead>
                                 <tbody className="">
@@ -234,17 +234,17 @@ export default function BranchCommissionReport() {
                                             return (
                                                 <tr
                                                     key={branch._id}
-                                                    className="group bg-white dark:bg-gray-800 hover:bg-blue-600 dark:hover:bg-blue-500 transition-all duration-300 shadow-sm hover:shadow-blue-500/25 rounded-xl border border-gray-100 dark:border-gray-700"
+                                                    className="group bg-gray-50 dark:bg-gray-700/30 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 border border-gray-100 dark:border-gray-700/50 rounded-lg"
                                                 >
-                                                    <td className="px-6 py-4 text-gray-400 group-hover:text-blue-100 font-bold transition-colors first:rounded-l-xl">
+                                                    <td className="px-4 py-2 text-2xs text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 font-medium transition-colors first:rounded-l-lg">
                                                         {String(index + 1).padStart(2, '0')}
                                                     </td>
-                                                    <td className="px-6 py-4 font-black text-gray-900 dark:text-white group-hover:text-white uppercase tracking-tight transition-colors">
+                                                    <td className="px-4 py-2 text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-tight transition-colors">
                                                         {branch.branch_name}
                                                     </td>
-                                                    <td className="px-6 py-4 text-right last:rounded-r-xl">
-                                                        <span className="inline-block px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:bg-white group-hover:text-blue-600 rounded-lg font-black text-lg shadow-sm transition-all duration-300">
-                                                            {(branch.today_commission || 0).toLocaleString()}
+                                                    <td className="px-4 py-2 text-right last:rounded-r-lg">
+                                                        <span className="inline-block px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 rounded-md text-2xs font-semibold numeric transition-all duration-200">
+                                                            {(branch.today_commission || 0).toLocaleString('en-IN')}
                                                         </span>
                                                     </td>
                                                 </tr>
@@ -252,7 +252,7 @@ export default function BranchCommissionReport() {
                                         })
                                     ) : (
                                         <tr>
-                                            <td colSpan="3" className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                                            <td colSpan="3" className="px-6 py-12 text-center text-sm md:text-base text-gray-500 dark:text-gray-400">
                                                 No branches found matching your search.
                                             </td>
                                         </tr>
@@ -264,17 +264,17 @@ export default function BranchCommissionReport() {
                 </div>
 
                 {/* Footer Totals */}
-                <div className="bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 p-6">
-                    <div className="flex justify-between items-center max-w-7xl mx-auto">
+                <div className="bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 px-4 py-2">
+                    <div className="flex justify-between items-center">
                         <div className="flex flex-col">
-                            <span className="text-gray-400 dark:text-gray-500 text-xs uppercase font-bold tracking-widest mb-1">Total Branches</span>
-                            <span className="text-gray-900 dark:text-white text-2xl font-black">{filteredBranches.length}</span>
+                            <span className="text-2xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Total Branches</span>
+                            <span className="text-sm font-bold text-gray-900 dark:text-white numeric mt-0.5">{filteredBranches.length}</span>
                         </div>
                         <div className="flex flex-col items-end">
-                            <span className="text-gray-400 dark:text-gray-500 text-xs uppercase font-bold tracking-widest mb-1">Total Today's Commission</span>
-                            <div className="flex items-center gap-2">
-                                <span className="text-blue-500 dark:text-blue-400 text-3xl font-black italic">₹</span>
-                                <span className="text-blue-600 dark:text-blue-400 text-4xl font-black truncate">
+                            <span className="text-2xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Total Today's Commission</span>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                                <span className="text-blue-500 dark:text-blue-400 text-sm font-bold">₹</span>
+                                <span className="text-sm font-bold text-blue-600 dark:text-blue-400 numeric">
                                     {footerTotals.todayCommission.toLocaleString('en-IN')}
                                 </span>
                             </div>

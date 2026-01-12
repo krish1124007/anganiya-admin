@@ -1,3 +1,143 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+
+  /* Premium Font Rendering */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  html {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  body {
+    @apply text-base font-normal leading-relaxed;
+  }
+
+  /* Headings with display font */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  h1 {
+    @apply text-3xl md:text-4xl;
+  }
+
+  h2 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  h3 {
+    @apply text-xl md:text-2xl;
+  }
+
+  h4 {
+    @apply text-lg md:text-xl;
+  }
+
+  /* Input and button font consistency */
+  input,
+  button,
+  select,
+  textarea {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  /* Number formatting consistency */
+  .numeric {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+}
+
+@layer components {
+
+  /* Premium Typography Utilities */
+  .heading-xl {
+    @apply text-3xl md:text-4xl font-bold font-display tracking-tight;
+  }
+
+  .heading-lg {
+    @apply text-2xl md:text-3xl font-bold font-display tracking-tight;
+  }
+
+  .heading-md {
+    @apply text-xl md:text-2xl font-semibold font-display;
+  }
+
+  .heading-sm {
+    @apply text-lg md:text-xl font-semibold font-display;
+  }
+
+  .text-display {
+    @apply font-display font-bold;
+  }
+
+  .text-label {
+    @apply text-xs font-semibold uppercase tracking-wider;
+  }
+
+  .text-body {
+    @apply text-sm md:text-base leading-relaxed;
+  }
+
+  .text-number {
+    @apply numeric font-medium;
+  }
+
+  /* Card and Container Typography */
+  .card-title {
+    @apply text-base md:text-lg font-semibold text-gray-900 dark:text-white;
+  }
+
+  .card-subtitle {
+    @apply text-xs md:text-sm text-gray-500 dark:text-gray-400;
+  }
+
+  .stat-label {
+    @apply text-2xs md:text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400;
+  }
+
+  .stat-value {
+    @apply text-base md:text-lg font-bold numeric;
+  }
+
+  .stat-value-lg {
+    @apply text-lg md:text-xl font-bold numeric;
+  }
+
+  /* Table Typography */
+  .table-header {
+    @apply text-2xs md:text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400;
+  }
+
+  .table-cell {
+    @apply text-xs md:text-sm font-medium;
+  }
+
+  .table-cell-number {
+    @apply text-xs md:text-sm font-semibold numeric;
+  }
+
+  /* Button Typography */
+  .btn-text {
+    @apply text-sm md:text-base font-semibold;
+  }
+
+  .btn-text-sm {
+    @apply text-xs md:text-sm font-semibold;
+  }
+}
