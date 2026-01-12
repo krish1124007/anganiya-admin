@@ -452,72 +452,76 @@ export default function Transactions() {
   };
 
   return (
-    <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-full">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Transactions</h1>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleCreateTransaction}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center space-x-2 transition-colors shadow"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Create Transaction</span>
-          </button>
-          <button
-            onClick={handleExportPDF}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center space-x-2 transition-colors shadow"
-          >
-            <Download className="w-4 h-4" />
-            <span>Download PDF</span>
-          </button>
-          <button
-            onClick={fetchTransactions}
-            className="p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 hover:text-blue-500 transition-colors"
-            title="Refresh"
-          >
-            <RotateCcw className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
+    <div className="p-4 bg-gray-50 dark:bg-gray-900 min-h-full">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col h-[calc(100vh-90px)]">
+        {/* Single Line Header with All Controls */}
+        <div className="p-2.5 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <div className="flex items-center gap-2">
+            {/* Title */}
+            <div className="flex flex-col">
+              <h1 className="text-sm font-bold text-gray-900 dark:text-white">Transactions</h1>
+              <p className="text-2xs text-gray-500 dark:text-gray-400">All Transaction Records</p>
+            </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex flex-col h-[calc(100vh-140px)]">
-        {/* Search Header */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            {/* Search Bar */}
+            <div className="relative w-64 group ml-4">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
               <input
                 type="text"
-                placeholder="Search across all columns (Sender, Receiver, Branch, Points...)"
+                placeholder="Search transactions..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full pl-9 pr-3 py-2 text-xs border-2 border-gray-100 dark:border-gray-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-all outline-none"
               />
             </div>
 
             {/* Date Picker */}
-            <div className="relative flex gap-2">
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={handleDateChange}
-                  className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                  placeholder="Select date"
-                />
-              </div>
-              {selectedDate && (
-                <button
-                  onClick={handleClearDate}
-                  className="px-3 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors flex items-center gap-1"
-                  title="Clear date filter"
-                >
-                  <X className="w-4 h-4" />
-                  <span className="hidden sm:inline">Clear</span>
-                </button>
-              )}
+            <div className="relative group w-40">
+              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors pointer-events-none" />
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={handleDateChange}
+                className="w-full pl-9 pr-3 py-2 text-xs border-2 border-gray-100 dark:border-gray-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-all outline-none"
+              />
             </div>
+
+            {/* Clear Date */}
+            {selectedDate && (
+              <button
+                onClick={handleClearDate}
+                className="px-2.5 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl transition-all"
+                title="Clear date"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+
+            {/* Spacer */}
+            <div className="flex-1"></div>
+
+            {/* Action Buttons */}
+            <button
+              onClick={handleCreateTransaction}
+              className="px-2.5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center gap-1.5 transition-all text-xs font-semibold"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span className="hidden xl:inline">Create</span>
+            </button>
+            <button
+              onClick={handleExportPDF}
+              className="px-2.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-1.5 transition-all text-xs font-semibold"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span className="hidden xl:inline">Export PDF</span>
+            </button>
+            <button
+              onClick={fetchTransactions}
+              className="p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 hover:text-blue-600 hover:border-blue-500 transition-all"
+              title="Refresh"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
@@ -528,120 +532,102 @@ export default function Transactions() {
               <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
           ) : (
-            <table className="w-full text-xs text-left">
-              <thead className="text-[10px] text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10 shadow-sm">
+            <table className="w-full text-2xs text-left">
+              <thead className="table-header bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
                 <tr>
-                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Sr No</th>
-                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Date</th>
-                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700 text-right">Points</th>
-                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Receiver Name</th>
-                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Other To</th>
-                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">To</th>
-                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Other From</th>
-                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">From</th>
-                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700 text-right">Commission</th>
-                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Receiver Mobile</th>
-                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Sender Name</th>
-                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Admin Approval</th>
-                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Status</th>
-                  <th className="px-2 py-2 font-medium bg-gray-50 dark:bg-gray-700">Actions</th>
+                  <th className="px-2 py-1.5 text-left">Sr</th>
+                  <th className="px-2 py-1.5 text-left">Date</th>
+                  <th className="px-2 py-1.5 text-right">Points</th>
+                  <th className="px-2 py-1.5 text-left">Receiver</th>
+                  <th className="px-2 py-1.5 text-left">Other To</th>
+                  <th className="px-2 py-1.5 text-left">To</th>
+                  <th className="px-2 py-1.5 text-left">Other From</th>
+                  <th className="px-2 py-1.5 text-left">From</th>
+                  <th className="px-2 py-1.5 text-right">Comm</th>
+                  <th className="px-2 py-1.5 text-left">Receiver #</th>
+                  <th className="px-2 py-1.5 text-left">Sender</th>
+                  <th className="px-2 py-1.5 text-left">Approval</th>
+                  <th className="px-2 py-1.5 text-left">Status</th>
+                  <th className="px-2 py-1.5 text-center">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
                 {filteredTransactions.length > 0 ? (
                   filteredTransactions.map((t, index) => (
-                    <tr key={t._id} className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                      <td className="px-2 py-2 font-medium text-gray-900 dark:text-white">{index + 1}</td>
-                      <td className="px-2 py-2 text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                        {new Date(t.createdAt).toLocaleString('en-IN')}
+                    <tr key={t._id} className="bg-gray-50 dark:bg-gray-700/30 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
+                      <td className="px-2 py-1 text-2xs text-gray-500 dark:text-gray-400">{index + 1}</td>
+                      <td className="px-2 py-1 text-2xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                        {new Date(t.createdAt).toLocaleDateString('en-IN')} {new Date(t.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                       </td>
-                      <td className="px-2 py-2 font-semibold text-gray-900 dark:text-white text-right">
+                      <td className="px-2 py-1 text-right text-2xs font-semibold text-gray-900 dark:text-white numeric">
                         {t.points.toLocaleString('en-IN')}
                       </td>
-                      <td className="px-2 py-2 text-gray-500 dark:text-gray-400">
-                        <div className="font-medium text-gray-900 dark:text-white">{t.receiver_name}</div>
-                      </td>
-                      <td className="px-2 py-2 text-gray-500 dark:text-gray-400">
-                        <div className="font-medium text-gray-900 dark:text-white">{t.other_receiver}</div>
-                      </td>
-                      <td className="px-2 py-2 text-gray-500 dark:text-gray-400">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
+                      <td className="px-2 py-1 text-2xs font-medium text-gray-900 dark:text-white">{t.receiver_name}</td>
+                      <td className="px-2 py-1 text-2xs text-gray-500 dark:text-gray-400">{t.other_receiver}</td>
+                      <td className="px-2 py-1">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
                           {t.receiver_branch_name}
                         </span>
                       </td>
-                      <td className="px-2 py-2 text-gray-500 dark:text-gray-400">
-                        <div className="font-medium text-gray-900 dark:text-white">{t.other_sender}</div>
-                      </td>
-                      <td className="px-2 py-2 text-gray-500 dark:text-gray-400">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                      <td className="px-2 py-1 text-2xs text-gray-500 dark:text-gray-400">{t.other_sender}</td>
+                      <td className="px-2 py-1">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
                           {t.sender_branch_name}
                         </span>
                       </td>
-                      <td className="px-2 py-2 font-medium text-green-600 dark:text-green-400 text-right">
+                      <td className="px-2 py-1 text-right text-2xs font-semibold text-green-600 dark:text-green-400 numeric">
                         {t.commission.toLocaleString('en-IN')}
                       </td>
-                      <td className="px-2 py-2 text-gray-500 dark:text-gray-400">
-                        <div className="font-medium text-gray-900 dark:text-white">{t.receiver_mobile}</div>
-                      </td>
-                      <td className="px-2 py-2 text-gray-500 dark:text-gray-400">
-                        <div className="font-medium text-gray-900 dark:text-white">{t.sender_name}</div>
-                      </td>
-                      <td className="px-2 py-2">
+                      <td className="px-2 py-1 text-2xs text-gray-500 dark:text-gray-400">{t.receiver_mobile}</td>
+                      <td className="px-2 py-1 text-2xs font-medium text-gray-900 dark:text-white">{t.sender_name}</td>
+                      <td className="px-2 py-1">
                         {t.admin_permission ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
                             Approved
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
                             Not Approved
                           </span>
                         )}
                       </td>
-                      <td className="px-2 py-2">
+                      <td className="px-2 py-1">
                         {t.status ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
                             Complete
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
                             Pending
                           </span>
                         )}
                       </td>
-                      <td className="px-2 py-2">
-                        <div className="flex items-center gap-2">
+                      <td className="px-2 py-1">
+                        <div className="flex items-center gap-1">
                           <button
                             onClick={() => handleEditTransaction(t)}
-                            className="inline-flex items-center px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white text-[10px] font-medium rounded transition-colors"
-                            title="Edit Transaction"
+                            className="inline-flex items-center px-1.5 py-0.5 bg-orange-600 hover:bg-orange-700 text-white text-[9px] font-semibold rounded transition-colors"
+                            title="Edit"
                           >
-                            <Edit className="w-3 h-3 mr-1" />
-                            Edit
+                            <Edit className="w-2.5 h-2.5" />
                           </button>
                           <button
                             onClick={() => handleDeleteTransaction(t._id)}
-                            className="inline-flex items-center px-2 py-1 bg-red-600 hover:bg-red-700 text-white text-[10px] font-medium rounded transition-colors"
-                            title="Delete Transaction"
+                            className="inline-flex items-center px-1.5 py-0.5 bg-red-600 hover:bg-red-700 text-white text-[9px] font-semibold rounded transition-colors"
+                            title="Delete"
                           >
-                            <Trash className="w-3 h-3 mr-1" />
-                            Delete
+                            <Trash className="w-2.5 h-2.5" />
                           </button>
                           {!t.admin_permission && (
                             <button
                               onClick={() => handleApprove(t._id)}
                               disabled={approvingId === t._id}
-                              className="inline-flex items-center px-2 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-[10px] font-medium rounded transition-colors disabled:cursor-not-allowed"
+                              className="inline-flex items-center px-1.5 py-0.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-[9px] font-semibold rounded transition-colors disabled:cursor-not-allowed"
                             >
                               {approvingId === t._id ? (
-                                <>
-                                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1"></div>
-                                  Approving...
-                                </>
+                                <div className="w-2.5 h-2.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                               ) : (
-                                <>
-                                  <Check className="w-3 h-3 mr-1" />
-                                  Approve
-                                </>
+                                <Check className="w-2.5 h-2.5" />
                               )}
                             </button>
                           )}
@@ -662,17 +648,17 @@ export default function Transactions() {
         </div>
 
         {/* Footer Totals */}
-        <div className="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-4">
-          <div className="flex flex-col sm:flex-row justify-between items-center text-sm font-bold text-gray-900 dark:text-white px-2 gap-4 sm:gap-0">
-            <span>Total Records: {filteredTransactions.length}</span>
-            <div className="flex gap-8">
-              <div className="flex gap-2">
-                <span className="text-gray-500 dark:text-gray-400">Total Points:</span>
-                <span>{totals.points.toLocaleString('en-IN')}</span>
+        <div className="bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 px-3 py-2">
+          <div className="flex justify-between items-center">
+            <span className="text-2xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Total Records: {filteredTransactions.length}</span>
+            <div className="flex gap-6">
+              <div className="flex flex-col items-end">
+                <span className="text-2xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Points</span>
+                <span className="text-xs font-bold text-gray-900 dark:text-white numeric mt-0.5">{totals.points.toLocaleString('en-IN')}</span>
               </div>
-              <div className="flex gap-2">
-                <span className="text-gray-500 dark:text-gray-400">Total Commission:</span>
-                <span className="text-green-600 dark:text-green-400">{totals.commission.toLocaleString('en-IN')}</span>
+              <div className="flex flex-col items-end">
+                <span className="text-2xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Commission</span>
+                <span className="text-xs font-bold text-green-600 dark:text-green-400 numeric mt-0.5">{totals.commission.toLocaleString('en-IN')}</span>
               </div>
             </div>
           </div>
