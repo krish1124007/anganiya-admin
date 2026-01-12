@@ -17,14 +17,13 @@ export default function HOBranchLeader() {
     }, [selectedDate]);
 
     useEffect(() => {
-        // Filter branches: No longer excluding 'commission' branches
-        // Now showing all branches regardless of transactions, commission count, or name
-        const filteredBranches = branches;
+        // Filter branches: Exclude branches with transaction_balance of 0
+        const filteredBranches = branches.filter(b => (b.transaction_balance || 0) !== 0);
 
         // Split branches based on transaction balance
         // Fallback to 0 if undefined, though backend should guarantee a value
         const negative = filteredBranches.filter(b => (b.transaction_balance || 0) < 0);
-        const positive = filteredBranches.filter(b => (b.transaction_balance || 0) >= 0);
+        const positive = filteredBranches.filter(b => (b.transaction_balance || 0) > 0);
 
         // Apply search filter
         if (searchTerm) {
