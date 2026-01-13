@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
-import { Search, RotateCcw, Download, Check, Calendar, X, Plus, Edit, Trash, Copy } from 'lucide-react';
+import { Search, RotateCcw, Download, Check, Calendar, X, Plus, Edit, Trash, Copy, Printer } from 'lucide-react';
 import { decrypt_number, decrypt_text } from "../utils/decrypt";
-import { exportTableToPDF, formatNumber, formatDate } from '../utils/pdfExport';
+import { exportTableToPDF, printTableToPDF, formatNumber, formatDate } from '../utils/pdfExport';
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
@@ -419,19 +419,20 @@ export default function Transactions() {
   };
 
   const handleExportPDF = () => {
-    const headers = ['Sr No', 'Date', 'Points', 'Receiver', 'Sender', 'From', 'To', 'Other From', 'Other To', 'Commission', 'Admin Approval', 'Status'];
+    const headers = ['Sr No', 'Date', 'Points', 'Receiver', 'Other To', 'To', 'Other From', 'From', 'Comm', 'Receiver #', 'Sender', 'Approval', 'Status'];
 
     const data = filteredTransactions.map((t, index) => [
       index + 1,
       formatDate(t.createdAt),
       formatNumber(t.points),
       t.receiver_name,
-      t.sender_name,
-      t.sender_branch_name,
+      t.other_receiver,
       t.receiver_branch_name,
       t.other_sender,
-      t.other_receiver,
+      t.sender_branch_name,
       formatNumber(t.commission),
+      t.receiver_mobile,
+      t.sender_name,
       t.admin_permission ? 'Approved' : 'Not Approved',
       t.status ? 'Complete' : 'Pending'
     ]);
@@ -443,6 +444,40 @@ export default function Transactions() {
     };
 
     exportTableToPDF({
+      title: 'All Transactions Report',
+      headers,
+      data,
+      filename: `transactions-report-${new Date().toISOString().split('T')[0]}`,
+      footer
+    });
+  };
+
+  const handlePrintPDF = () => {
+    const headers = ['Sr No', 'Date', 'Points', 'Receiver', 'Other To', 'To', 'Other From', 'From', 'Comm', 'Receiver #', 'Sender', 'Approval', 'Status'];
+
+    const data = filteredTransactions.map((t, index) => [
+      index + 1,
+      formatDate(t.createdAt),
+      formatNumber(t.points),
+      t.receiver_name,
+      t.other_receiver,
+      t.receiver_branch_name,
+      t.other_sender,
+      t.sender_branch_name,
+      formatNumber(t.commission),
+      t.receiver_mobile,
+      t.sender_name,
+      t.admin_permission ? 'Approved' : 'Not Approved',
+      t.status ? 'Complete' : 'Pending'
+    ]);
+
+    const footer = {
+      "Total Records": filteredTransactions.length,
+      "Total Points": formatNumber(totals.points),
+      "Total Commission": formatNumber(totals.commission)
+    };
+
+    printTableToPDF({
       title: 'All Transactions Report',
       headers,
       data,
@@ -514,6 +549,13 @@ export default function Transactions() {
             >
               <Download className="w-3.5 h-3.5" />
               <span className="hidden xl:inline">Export PDF</span>
+            </button>
+            <button
+              onClick={handlePrintPDF}
+              className="px-2.5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg flex items-center gap-1.5 transition-all text-xs font-semibold"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span className="hidden xl:inline">Print PDF</span>
             </button>
             <button
               onClick={fetchTransactions}

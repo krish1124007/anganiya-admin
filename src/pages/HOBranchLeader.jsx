@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
-import { Search, RotateCcw, Download, Calendar, X, ShieldCheck } from 'lucide-react';
-import { exportTableToPDF, formatNumber } from '../utils/pdfExport';
+import { Search, RotateCcw, Download, Calendar, X, ShieldCheck, Printer } from 'lucide-react';
+import { exportSplitTableToPDF, printSplitTableToPDF, formatNumber } from '../utils/pdfExport';
 
 export default function HOBranchLeader() {
     const [branches, setBranches] = useState([]);
@@ -126,7 +126,7 @@ export default function HOBranchLeader() {
         const headers = ['Sr No', 'City Name', 'Balance', 'Commission', 'Total'];
 
         const negativeData = negativeBranches.map((branch, index) => {
-            const commission = branch.commission || 0;
+            const commission = branch.remaining_transfer_commission || 0;
             const openingBalance = branch.transaction_balance || 0;
             const total = openingBalance + commission;
 
@@ -140,7 +140,7 @@ export default function HOBranchLeader() {
         });
 
         const positiveData = positiveBranches.map((branch, index) => {
-            const commission = branch.commission || 0;
+            const commission = branch.remaining_transfer_commission || 0;
             const openingBalance = branch.transaction_balance || 0;
             const total = openingBalance + commission;
 
@@ -153,20 +153,74 @@ export default function HOBranchLeader() {
             ];
         });
 
-        exportTableToPDF({
+        exportSplitTableToPDF({
             title: `HO Branch Leader Report - ${selectedDate || 'Today'}`,
             headers,
-            data: [...negativeData, ...positiveData],
+            negativeData,
+            positiveData,
             filename: `ho-branch-leader-${selectedDate || new Date().toISOString().split('T')[0]}`,
-            footer: {
-                'Negative Branches Count': negativeBranches.length,
-                'Negative Total Commission': formatNumber(negativeTotals.commission),
-                'Negative Grand Total': formatNumber(negativeTotals.total),
-                'Positive Branches Count': positiveBranches.length,
-                'Positive Total Commission': formatNumber(positiveTotals.commission),
-                'Positive Grand Total': formatNumber(positiveTotals.total),
-                'HO Balance': formatNumber(hoBalance),
+            negativeTotals: {
+                balance: negativeTotals.openingBalance,
+                commission: negativeTotals.commission,
+                total: negativeTotals.total
             },
+            positiveTotals: {
+                balance: positiveTotals.openingBalance,
+                commission: positiveTotals.commission,
+                total: positiveTotals.total
+            },
+            hoBalance
+        });
+    };
+
+    const handlePrintPDF = () => {
+        const headers = ['Sr No', 'City Name', 'Balance', 'Commission', 'Total'];
+
+        const negativeData = negativeBranches.map((branch, index) => {
+            const commission = branch.remaining_transfer_commission || 0;
+            const openingBalance = branch.transaction_balance || 0;
+            const total = openingBalance + commission;
+
+            return [
+                index + 1,
+                branch.branch_name,
+                formatNumber(openingBalance),
+                formatNumber(commission),
+                formatNumber(total)
+            ];
+        });
+
+        const positiveData = positiveBranches.map((branch, index) => {
+            const commission = branch.remaining_transfer_commission || 0;
+            const openingBalance = branch.transaction_balance || 0;
+            const total = openingBalance + commission;
+
+            return [
+                index + 1,
+                branch.branch_name,
+                formatNumber(openingBalance),
+                formatNumber(commission),
+                formatNumber(total)
+            ];
+        });
+
+        printSplitTableToPDF({
+            title: `HO Branch Leader Report - ${selectedDate || 'Today'}`,
+            headers,
+            negativeData,
+            positiveData,
+            filename: `ho-branch-leader-${selectedDate || new Date().toISOString().split('T')[0]}`,
+            negativeTotals: {
+                balance: negativeTotals.openingBalance,
+                commission: negativeTotals.commission,
+                total: negativeTotals.total
+            },
+            positiveTotals: {
+                balance: positiveTotals.openingBalance,
+                commission: positiveTotals.commission,
+                total: positiveTotals.total
+            },
+            hoBalance
         });
     };
 
@@ -297,6 +351,13 @@ export default function HOBranchLeader() {
                         >
                             <Download className="w-3.5 h-3.5" />
                             <span className="hidden xl:inline">Export PDF</span>
+                        </button>
+                        <button
+                            onClick={handlePrintPDF}
+                            className="px-2.5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg flex items-center gap-1.5 transition-all text-xs font-semibold"
+                        >
+                            <Printer className="w-3.5 h-3.5" />
+                            <span className="hidden xl:inline">Print PDF</span>
                         </button>
                     </div>
                 </div>
