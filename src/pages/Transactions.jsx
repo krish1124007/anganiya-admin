@@ -419,22 +419,22 @@ export default function Transactions() {
   };
 
   const handleExportPDF = () => {
-    const headers = ['Sr No', 'Date', 'Points', 'Receiver', 'Other To', 'To', 'Other From', 'From', 'Comm', 'Receiver #', 'Sender', 'Approval', 'Status'];
+    const headers = ['Sr', 'Date', 'Points', 'Receiver', 'Other To', 'To', 'Other From', 'From', 'Comm', 'Receiver #', 'Sender', 'Approval', 'Status'];
 
     const data = filteredTransactions.map((t, index) => [
       index + 1,
-      formatDate(t.createdAt),
+      new Date(t.createdAt).toLocaleDateString('en-IN'),
       formatNumber(t.points),
       t.receiver_name,
-      t.other_receiver,
+      t.other_receiver || '-',
       t.receiver_branch_name,
-      t.other_sender,
+      t.other_sender || '-',
       t.sender_branch_name,
       formatNumber(t.commission),
       t.receiver_mobile,
       t.sender_name,
-      t.admin_permission ? 'Approved' : 'Not Approved',
-      t.status ? 'Complete' : 'Pending'
+      t.admin_permission ? 'Yes' : 'No',
+      t.status ? 'Done' : 'Pending'
     ]);
 
     const footer = {
@@ -448,27 +448,43 @@ export default function Transactions() {
       headers,
       data,
       filename: `transactions-report-${new Date().toISOString().split('T')[0]}`,
-      footer
+      footer,
+      landscape: true,
+      columnStyles: {
+        0: { cellWidth: 8 },   // Sr
+        1: { cellWidth: 20 },  // Date
+        2: { cellWidth: 18 },  // Points
+        3: { cellWidth: 22 },  // Receiver
+        4: { cellWidth: 18 },  // Other To
+        5: { cellWidth: 28 },  // To
+        6: { cellWidth: 18 },  // Other From
+        7: { cellWidth: 28 },  // From
+        8: { cellWidth: 15 },  // Comm
+        9: { cellWidth: 22 },  // Receiver #
+        10: { cellWidth: 22 }, // Sender
+        11: { cellWidth: 15 }, // Approval
+        12: { cellWidth: 15 }  // Status
+      }
     });
   };
 
   const handlePrintPDF = () => {
-    const headers = ['Sr No', 'Date', 'Points', 'Receiver', 'Other To', 'To', 'Other From', 'From', 'Comm', 'Receiver #', 'Sender', 'Approval', 'Status'];
+    const headers = ['Sr', 'Date', 'Points', 'Receiver', 'Other To', 'To', 'Other From', 'From', 'Comm', 'Receiver #', 'Sender', 'Approval', 'Status'];
 
     const data = filteredTransactions.map((t, index) => [
       index + 1,
-      formatDate(t.createdAt),
+      new Date(t.createdAt).toLocaleDateString('en-IN'),
       formatNumber(t.points),
       t.receiver_name,
-      t.other_receiver,
+      t.other_receiver || '-',
       t.receiver_branch_name,
-      t.other_sender,
+      t.other_sender || '-',
       t.sender_branch_name,
       formatNumber(t.commission),
       t.receiver_mobile,
       t.sender_name,
-      t.admin_permission ? 'Approved' : 'Not Approved',
-      t.status ? 'Complete' : 'Pending'
+      t.admin_permission ? 'Yes' : 'No',
+      t.status ? 'Done' : 'Pending'
     ]);
 
     const footer = {
@@ -482,7 +498,23 @@ export default function Transactions() {
       headers,
       data,
       filename: `transactions-report-${new Date().toISOString().split('T')[0]}`,
-      footer
+      footer,
+      landscape: true,
+      columnStyles: {
+        0: { cellWidth: 8 },   // Sr
+        1: { cellWidth: 20 },  // Date
+        2: { cellWidth: 18 },  // Points
+        3: { cellWidth: 22 },  // Receiver
+        4: { cellWidth: 18 },  // Other To
+        5: { cellWidth: 28 },  // To
+        6: { cellWidth: 18 },  // Other From
+        7: { cellWidth: 28 },  // From
+        8: { cellWidth: 15 },  // Comm
+        9: { cellWidth: 22 },  // Receiver #
+        10: { cellWidth: 22 }, // Sender
+        11: { cellWidth: 15 }, // Approval
+        12: { cellWidth: 15 }  // Status
+      }
     });
   };
 
@@ -605,13 +637,13 @@ export default function Transactions() {
                         {t.points.toLocaleString('en-IN')}
                       </td>
                       <td className="px-2 py-1 text-2xs font-medium text-gray-900 dark:text-white">{t.receiver_name}</td>
-                      <td className="px-2 py-1 text-2xs text-gray-500 dark:text-gray-400">{t.other_receiver}</td>
+                      <td className="px-2 py-1 text-2xs text-gray-500 dark:text-gray-400">{t.other_receiver || '-'}</td>
                       <td className="px-2 py-1">
                         <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
                           {t.receiver_branch_name}
                         </span>
                       </td>
-                      <td className="px-2 py-1 text-2xs text-gray-500 dark:text-gray-400">{t.other_sender}</td>
+                      <td className="px-2 py-1 text-2xs text-gray-500 dark:text-gray-400">{t.other_sender || '-'}</td>
                       <td className="px-2 py-1">
                         <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
                           {t.sender_branch_name}

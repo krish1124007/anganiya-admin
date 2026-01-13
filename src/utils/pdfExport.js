@@ -9,18 +9,20 @@ import autoTable from 'jspdf-autotable';
  * @param {Array} options.data - Array of data rows
  * @param {string} options.filename - Output filename (without .pdf extension)
  * @param {Object} options.footer - Optional footer data with totals
+ * @param {boolean} options.landscape - Optional landscape orientation (default: portrait)
+ * @param {Object} options.columnStyles - Optional column width styles
  */
-export const exportTableToPDF = ({ title, headers, data, filename, footer = null }) => {
+export const exportTableToPDF = ({ title, headers, data, filename, footer = null, landscape = false, columnStyles = {} }) => {
     try {
         console.log('Starting PDF export...', { title, headers, data, filename, footer });
 
-        const doc = new jsPDF();
+        const doc = new jsPDF(landscape ? 'landscape' : 'portrait');
         console.log('jsPDF instance created:', doc);
 
         // Add title
         doc.setFontSize(18);
         doc.setFont(undefined, 'bold');
-        doc.text(title, 14, 20);
+        doc.text(title, 8, 20);
 
         // Add date
         doc.setFontSize(10);
@@ -32,7 +34,7 @@ export const exportTableToPDF = ({ title, headers, data, filename, footer = null
             hour: '2-digit',
             minute: '2-digit'
         });
-        doc.text(`Generated: ${date}`, 14, 28);
+        doc.text(`Generated: ${date}`, 8, 28);
 
         // Add table using autoTable function
         console.log('Calling autoTable...');
@@ -45,15 +47,17 @@ export const exportTableToPDF = ({ title, headers, data, filename, footer = null
                 fillColor: [59, 130, 246], // Blue color
                 textColor: [255, 255, 255],
                 fontStyle: 'bold',
-                fontSize: 10
+                fontSize: 10,
+                halign: 'center'
             },
             bodyStyles: {
-                fontSize: 9
+                fontSize: 8
             },
+            columnStyles: columnStyles,
             alternateRowStyles: {
                 fillColor: [245, 247, 250]
             },
-            margin: { top: 35 }
+            margin: { top: 35, left: 8, right: 8 }
         });
         console.log('autoTable completed successfully');
 
@@ -65,7 +69,7 @@ export const exportTableToPDF = ({ title, headers, data, filename, footer = null
 
             let yPosition = finalY;
             Object.entries(footer).forEach(([key, value]) => {
-                doc.text(`${key}: ${value}`, 14, yPosition);
+                doc.text(`${key}: ${value}`, 8, yPosition);
                 yPosition += 7;
             });
         }
@@ -85,17 +89,17 @@ export const exportTableToPDF = ({ title, headers, data, filename, footer = null
  * Print table data to PDF (Opens print dialog instead of downloading)
  * @param {Object} options - Configuration object (same as exportTableToPDF)
  */
-export const printTableToPDF = ({ title, headers, data, filename, footer = null }) => {
+export const printTableToPDF = ({ title, headers, data, filename, footer = null, landscape = false, columnStyles = {} }) => {
     try {
         console.log('Starting PDF print...', { title, headers, data, filename, footer });
 
-        const doc = new jsPDF();
+        const doc = new jsPDF(landscape ? 'landscape' : 'portrait');
         console.log('jsPDF instance created:', doc);
 
         // Add title
         doc.setFontSize(18);
         doc.setFont(undefined, 'bold');
-        doc.text(title, 14, 20);
+        doc.text(title, 8, 20);
 
         // Add date
         doc.setFontSize(10);
@@ -107,7 +111,7 @@ export const printTableToPDF = ({ title, headers, data, filename, footer = null 
             hour: '2-digit',
             minute: '2-digit'
         });
-        doc.text(`Generated: ${date}`, 14, 28);
+        doc.text(`Generated: ${date}`, 8, 28);
 
         // Add table using autoTable function
         console.log('Calling autoTable...');
@@ -120,15 +124,17 @@ export const printTableToPDF = ({ title, headers, data, filename, footer = null 
                 fillColor: [59, 130, 246], // Blue color
                 textColor: [255, 255, 255],
                 fontStyle: 'bold',
-                fontSize: 10
+                fontSize: 10,
+                halign: 'center'
             },
             bodyStyles: {
-                fontSize: 9
+                fontSize: 8
             },
+            columnStyles: columnStyles,
             alternateRowStyles: {
                 fillColor: [245, 247, 250]
             },
-            margin: { top: 35 }
+            margin: { top: 35, left: 8, right: 8 }
         });
         console.log('autoTable completed successfully');
 
@@ -140,7 +146,7 @@ export const printTableToPDF = ({ title, headers, data, filename, footer = null 
 
             let yPosition = finalY;
             Object.entries(footer).forEach(([key, value]) => {
-                doc.text(`${key}: ${value}`, 14, yPosition);
+                doc.text(`${key}: ${value}`, 8, yPosition);
                 yPosition += 7;
             });
         }
