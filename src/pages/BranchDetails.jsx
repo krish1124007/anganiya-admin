@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { decrypt_number, decrypt_text } from '../utils/decrypt';
-import { Search, ArrowLeft, RotateCcw, Download, Calendar, X } from 'lucide-react';
-import { exportTableToPDF, formatNumber, formatDate } from '../utils/pdfExport';
+import { Search, ArrowLeft, RotateCcw, Download, Calendar, X, Printer } from 'lucide-react';
+import { exportTableToPDF, printTableToPDF, formatNumber, formatDate } from '../utils/pdfExport';
 
 export default function BranchDetails({ branchId, onBack }) {
     const [transactions, setTransactions] = useState([]);
@@ -210,6 +210,49 @@ export default function BranchDetails({ branchId, onBack }) {
         });
     };
 
+    const handlePrintPDF = () => {
+        const headers = [
+            'Sr No', 'Date', 'Type', 'Points', 'Sender/Receiver', 'Branch', 'Commission'
+        ];
+
+        const data = [
+            ...receivedTransactions.map((t, index) => [
+                index + 1,
+                formatDate(t.createdAt),
+                'Received',
+                formatNumber(t.points),
+                t.sender_name,
+                t.sender_branch_name,
+                formatNumber(t.receiver_commision || 0),
+            ]),
+            ...sentTransactions.map((t, index) => [
+                receivedTransactions.length + index + 1,
+                formatDate(t.createdAt),
+                'Sent',
+                formatNumber(t.points),
+                t.receiver_name,
+                t.receiver_branch_name,
+                formatNumber(t.sender_commision || 0),
+            ])
+        ];
+
+        printTableToPDF({
+            title: `${branchName} - Branch Details`,
+            headers,
+            data,
+            filename: `branch-details-${branchName.replace(/\s+/g, '-').toLowerCase()}`,
+            footer: {
+                'Opening Balance': formatNumber(openingBalance),
+                'Total Received Points': formatNumber(totalReceivedPoints),
+                'Total Sent Points': formatNumber(totalSentPoints),
+                'Net Points': formatNumber(netPointsValue),
+                'Total Commission': formatNumber(totalNetCommission),
+                'Before Commission (Transaction Balance)': formatNumber(transactionBalance),
+                'After Commission (Transaction Balance + Remaining Transfer Commission)': formatNumber(transactionBalance + remainingTransferCommission),
+            },
+        });
+    };
+
     const renderTable = (title, data, type) => (
         <div className={`flex-1 ${type === 'received' ? 'border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700' : ''}`}>
             <div className="sticky top-0 bg-white dark:bg-gray-800 z-10 border-b border-gray-200 dark:border-gray-700">
@@ -366,6 +409,14 @@ export default function BranchDetails({ branchId, onBack }) {
                             title="Refresh"
                         >
                             <RotateCcw className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={handlePrintPDF}
+                            className="px-2.5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center gap-1.5 transition-all text-xs font-semibold"
+                            title="Print PDF"
+                        >
+                            <Printer className="w-3.5 h-3.5" />
+                            <span className="hidden xl:inline">Print PDF</span>
                         </button>
                         <button
                             onClick={handleExportPDF}
